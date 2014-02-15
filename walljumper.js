@@ -35,7 +35,11 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	walls.push(wall);
 	onWall = wall;
 
-	var wall = new Splat.Entity(canvas.width - 50, 0, 50, canvas.height);
+	wall = new Splat.Entity(canvas.width - 50, 0, 50, canvas.height);
+	wall.draw = drawWall;
+	walls.push(wall);
+
+	wall = new Splat.Entity(canvas.width / 2, 200, 50, 300);
 	wall.draw = drawWall;
 	walls.push(wall);
 },
@@ -57,11 +61,14 @@ function(elapsedMillis) {
 
 	player.move(elapsedMillis);
 
+	onWall = undefined;
 	for (var i = 0; i < walls.length; i++) {
 		var wall = walls[i];
 		if (player.collides(wall)) {
 			player.resolveCollisionWith(wall);
-			onWall = wall;
+			if (player.overlapsVert(wall)) {
+				onWall = wall;
+			}
 		}
 	}
 
