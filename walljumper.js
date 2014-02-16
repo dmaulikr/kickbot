@@ -66,14 +66,14 @@ var manifest = {
 			"flip": "horizontal"
 		},
 		"player-slide-left": {
-			"strip": "images/player-slide.png",
-			"frames": 1,
-			"msPerFrame": 70
+			"strip": "images/player-slide-anim.png",
+			"frames": 8,
+			"msPerFrame": 100
 		},
 		"player-slide-right": {
-			"strip": "images/player-slide.png",
-			"frames": 1,
-			"msPerFrame": 70,
+			"strip": "images/player-slide-anim.png",
+			"frames": 8,
+			"msPerFrame": 100,
 			"flip": "horizontal"
 		},
 	}
