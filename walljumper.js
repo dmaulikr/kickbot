@@ -9,6 +9,11 @@ var manifest = {
 		"bg": "images/bg.png",
 	},
 	"sounds": {
+		"jump1": "audio/jump1.wav",
+		"jump2": "audio/jump2.wav",
+		"jump3": "audio/jump3.wav",
+		"jump4": "audio/jump4.wav",
+		"jump5": "audio/jump5.wav",
 	},
 	"fonts": [
 	],
@@ -24,6 +29,7 @@ var walls = [];
 var obstacles = [];
 var onWall;
 var dead = false;
+var jumpSounds = ["jump1", "jump2", "jump3", "jump4", "jump5"];
 
 var bgY = 0;
 
@@ -32,6 +38,11 @@ function drawFlipped(context) {
 	context.scale(-1, 1);
 	context.drawImage(this.sprite, -this.x - this.sprite.width, this.y);
 	context.restore();
+}
+
+function jumpSound() {
+	var i = Math.random() * jumpSounds.length |0;
+	game.sounds.play(jumpSounds[i]);
 }
 
 function makeWall(y) {
@@ -187,6 +198,7 @@ function(elapsedMillis) {
 			}
 			player.vy = -1.5;
 			onWall = undefined;
+			jumpSound();
 		} else if (right) {
 			if (wallIsOnLeft) {
 				player.vx = 1.0;
@@ -195,6 +207,7 @@ function(elapsedMillis) {
 			}
 			player.vy = -1.5;
 			onWall = undefined;
+			jumpSound();
 		}
 	}
 },
