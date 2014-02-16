@@ -19,6 +19,12 @@ var manifest = {
 		"pixelade"
 	],
 	"animations": {
+		"two-scoop": {
+			"strip": "images/two-scoop-pixel-anim.png",
+			"frames": 16,
+			"msPerFrame": 100,
+			"repeatAt": 15
+		},
 		"arrow-left": {
 			"strip": "images/arrow-key-sprite.png",
 			"frames": 2,
@@ -156,6 +162,26 @@ var manifest = {
 
 var game = new Splat.Game(canvas, manifest);
 
+game.scenes.add("title", new Splat.Scene(canvas, function() {
+	this.startTimer("running");
+}, function(elapsedMillis) {
+	if (this.timer("running") > 2000) {
+		game.scenes.switchTo("main");
+	}
+	game.animations.get("two-scoop").move(elapsedMillis);
+}, function(context) {
+	context.fillStyle = "#93cbcd";
+	context.fillRect(0, 0, canvas.width, canvas.height);
+
+	var anim = game.animations.get("two-scoop");
+
+	context.fillStyle = "#ffffff";
+	context.font = "50px pixelade";
+	centerText(context, "TWO SCOOP GAMES", 0, (canvas.height / 2) + (anim.height / 2) + 30);
+
+	anim.draw(context, (canvas.width / 2) - (anim.width / 2), (canvas.height / 2) - (anim.height / 2));
+}));
+
 var player;
 
 var walls = [];
@@ -287,7 +313,7 @@ function centerText(context, text, offsetX, offsetY) {
 	context.fillText(text, x, y);
 }
 
-game.scenes.add("title", new Splat.Scene(canvas, function() {
+game.scenes.add("main", new Splat.Scene(canvas, function() {
 	walls = [];
 	obstacles = [];
 	waitingToStart = true;
@@ -337,7 +363,7 @@ function(elapsedMillis) {
 
 		var ftb = this.timer("fade to black");
 		if (ftb > 2000) {
-			game.scenes.switchTo("title");
+			game.scenes.switchTo("main");
 		}
 		if (!ftb) {
 			this.startTimer("fade to black");
