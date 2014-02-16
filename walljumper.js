@@ -371,6 +371,7 @@ function(elapsedMillis) {
 		this.camera.vy = 0.6;
 		player.vy = this.camera.vy;
 		if (anythingWasPressed()) {
+			obstacles = [];
 			game.sounds.play("music", true);
 			waitingToStart = false;
 			this.camera.vy = -0.6;
