@@ -22,6 +22,17 @@ var manifest = {
 		"pixelade"
 	],
 	"animations": {
+		"arrow-left": {
+			"strip": "images/arrow-key-sprite.png",
+			"frames": 2,
+			"msPerFrame": 500
+		},
+		"arrow-right": {
+			"strip": "images/arrow-key-sprite.png",
+			"frames": 2,
+			"msPerFrame": 500,
+			"flip": "horizontal"
+		},
 	}
 };
 
@@ -128,6 +139,10 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	};
 
 	this.clearTimers();
+
+	game.animations.get("arrow-left").reset();
+	game.animations.get("arrow-right").reset();
+	game.animations.get("arrow-right").frame = 1;
 },
 function(elapsedMillis) {
 	if (waitingToStart) {
@@ -138,6 +153,8 @@ function(elapsedMillis) {
 			waitingToStart = false;
 			this.camera.vy = -0.6;
 		}
+		game.animations.get("arrow-left").move(elapsedMillis);
+		game.animations.get("arrow-right").move(elapsedMillis);
 	}
 
 	bgY -= this.camera.vy / 1.5 * elapsedMillis;
@@ -316,6 +333,16 @@ function(context) {
 		context.fillRect(this.camera.x, this.camera.y, canvas.width, canvas.height);
 	}
 
+	if (waitingToStart) {
+		this.camera.drawAbsolute(context, function() {
+			var arrow = game.animations.get("arrow-left");
+			var x = (canvas.width / 4);
+			arrow.draw(context, x, canvas.height * 3 / 4);
+
+			x = canvas.width - (canvas.width / 4) - arrow.width;
+			game.animations.get("arrow-right").draw(context, x, canvas.height * 3 / 4);
+		});
+	}
 	this.camera.drawAbsolute(context, function() {
 		context.fillStyle = "#ffffff";
 		context.font = "100px pixelade";
