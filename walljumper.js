@@ -116,6 +116,9 @@ function(elapsedMillis) {
 	}
 
 	if (player.y > this.camera.y + this.camera.height) {
+		if (!dead) {
+			game.sounds.play("spikes");
+		}
 		dead = true;
 		this.camera.vy = 0;
 		return;
