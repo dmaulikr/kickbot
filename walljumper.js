@@ -44,10 +44,10 @@ function makeWall(y) {
 
 function populateWalls(scene) {
 	if (walls.length == 0) {
-		makeWall(scene.camera.y + scene.camera.height - 100);
+		makeWall(scene.camera.y + scene.camera.height - 234);
 	}
 	while (walls[walls.length - 1].y + walls[walls.length - 1].height > scene.camera.y) {
-		makeWall(walls[walls.length - 1].y - 100);
+		makeWall(walls[walls.length - 1].y - 234);
 	}
 	while (walls[0].y > scene.camera.y + scene.camera.height) {
 		walls.shift();
