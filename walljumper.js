@@ -68,6 +68,10 @@ function populateWalls(scene) {
 	}
 }
 
+function oscillate(current, period, height) {
+	return Math.sin(current / period * Math.PI) * height;
+}
+
 game.scenes.add("title", new Splat.Scene(canvas, function() {
 	dead = false;
 	this.camera.vy = -0.3;
@@ -160,17 +164,13 @@ function(context) {
 	player.draw(context);
 
 	var flashTime = this.timer("flash");
-	var flashLen = 100;
-	if (flashTime > flashLen * 2) {
+	var flashLen = 150;
+	if (flashTime > flashLen) {
 		this.stopTimer("flash");
 		flashTime = 0;
 	}
 	if (flashTime > 0) {
-		var opacity = flashTime / flashLen;
-		if (flashTime > flashLen) {
-			flashTime -= flashLen;
-			opacity = (flashLen - flashTime) / flashLen;
-		}
+		var opacity = oscillate(this.timer("flash"), flashLen, 1);
 		context.fillStyle = "rgba(255, 255, 255, " + opacity + ")";
 		context.fillRect(this.camera.x, this.camera.y, canvas.width, canvas.height);
 	}
