@@ -14,6 +14,8 @@ var manifest = {
 		"jump3": "audio/jump3.wav",
 		"jump4": "audio/jump4.wav",
 		"jump5": "audio/jump5.wav",
+		"laser": "audio/laser.wav",
+		"spikes": "audio/spikes.wav",
 	},
 	"fonts": [
 	],
@@ -178,6 +180,13 @@ function(elapsedMillis) {
 			obstacle.counted = true;
 		}
 		if (player.collides(obstacle)) {
+			if (!this.timer("flash")) {
+				if (obstacle.sprite == game.images.get("laser")) {
+					game.sounds.play("laser");
+				} else if (obstacle.sprite == game.images.get("spikes")) {
+					game.sounds.play("spikes");
+				}
+			}
 			this.startTimer("flash");
 			dead = true;
 			return;
