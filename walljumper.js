@@ -355,7 +355,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 
 	var wallW = game.animations.get("wall-1-left").width;
 	var playerImg = game.animations.get("player-slide-left");
-	player = new Splat.AnimatedEntity(wallW, canvas.height / 2, 40, 130, playerImg, -30, -13);
+	player = new Splat.AnimatedEntity(wallW, canvas.height / 2, 30, 100, playerImg, -35, -13);
 
 	this.clearTimers();
 
