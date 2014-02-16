@@ -42,7 +42,7 @@ function makeWall(y) {
 	wall.draw = drawFlipped;
 	walls.push(wall);
 
-	if (Math.random() > 0.8) {
+	if (y < -500 && Math.random() > 0.6) {
 		var img = game.images.get("laser");
 		var laser = new Splat.AnimatedEntity(wallImg.width - 8, y, img.width, img.height, img, 0, 0);
 		if (Math.random() > 0.5) {
