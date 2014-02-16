@@ -314,6 +314,17 @@ function centerText(context, text, offsetX, offsetY) {
 	context.fillText(text, x, y);
 }
 
+function anythingWasPressed() {
+	return game.keyboard.isPressed("left") || game.keyboard.isPressed("right") || game.mouse.buttons[0];
+}
+
+function consumeAnythingWasPressed() {
+	var ret = game.keyboard.consumePressed("left") || game.keyboard.consumePressed("right") || game.mouse.buttons[0];
+	game.mouse.buttons[0] = false;
+	return ret;
+}
+
+
 game.scenes.add("main", new Splat.Scene(canvas, function() {
 	walls = [];
 	obstacles = [];
@@ -339,7 +350,7 @@ function(elapsedMillis) {
 	if (waitingToStart) {
 		this.camera.vy = 0.6;
 		player.vy = this.camera.vy;
-		if (game.keyboard.isPressed("left") || game.keyboard.isPressed("right") || game.mouse.buttons[0]) {
+		if (anythingWasPressed()) {
 			game.sounds.play("music", true);
 			waitingToStart = false;
 			this.camera.vy = -0.6;
@@ -363,7 +374,7 @@ function(elapsedMillis) {
 		dead = true;
 
 		var ftb = this.timer("fade to black");
-		if (ftb > 2000) {
+		if (ftb > 2000 || consumeAnythingWasPressed()) {
 			game.scenes.switchTo("main");
 		}
 		if (!ftb) {
