@@ -74,6 +74,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 		context.fillStyle = "#ff0000";
 		context.fillRect(this.x, this.y, this.width, this.height);
 	};
+
+	this.clearTimers();
 },
 function(elapsedMillis) {
 	if (player.y > this.camera.y + this.camera.height) {
@@ -92,7 +94,7 @@ function(elapsedMillis) {
 
 	// gravity
 	player.vy += elapsedMillis * 0.003;
-	if (onWall && player.vy > 0.5) {
+	if (onWall && !dead && player.vy > 0.5) {
 		player.vy = 0.5;
 	}
 
@@ -117,6 +119,7 @@ function(elapsedMillis) {
 	for (var i = 0; i < obstacles.length; i++) {
 		var obstacle = obstacles[i];
 		if (player.collides(obstacle)) {
+			this.startTimer("flash");
 			dead = true;
 			return;
 		}
@@ -141,6 +144,22 @@ function(context) {
 		obstacles[i].draw(context);
 	}
 	player.draw(context);
+
+	var flashTime = this.timer("flash");
+	var flashLen = 100;
+	if (flashTime > flashLen * 2) {
+		this.stopTimer("flash");
+		flashTime = 0;
+	}
+	if (flashTime > 0) {
+		var opacity = flashTime / flashLen;
+		if (flashTime > flashLen) {
+			flashTime -= flashLen;
+			opacity = (flashLen - flashTime) / flashLen;
+		}
+		context.fillStyle = "rgba(255, 255, 255, " + opacity + ")";
+		context.fillRect(this.camera.x, this.camera.y, canvas.width, canvas.height);
+	}
 }));
 
 game.scenes.switchTo("loading");
