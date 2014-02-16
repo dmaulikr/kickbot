@@ -54,11 +54,12 @@ function makeWall(y) {
 }
 
 function populateWalls(scene) {
+	var wallH = game.images.get("wall1").height;
 	if (walls.length == 0) {
-		makeWall(scene.camera.y + scene.camera.height - 234);
+		makeWall(scene.camera.y + scene.camera.height - wallH);
 	}
 	while (walls[walls.length - 1].y + walls[walls.length - 1].height > scene.camera.y) {
-		makeWall(walls[walls.length - 1].y - 234);
+		makeWall(walls[walls.length - 1].y - wallH);
 	}
 	while (walls[0].y > scene.camera.y + scene.camera.height) {
 		walls.shift();
@@ -76,7 +77,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	dead = false;
 	this.camera.vy = -0.3;
 
-	player = new Splat.Entity(84, canvas.height / 2, 50, 50);
+	var wallW = game.images.get("wall1").width;
+	player = new Splat.Entity(wallW, canvas.height / 2, 50, 50);
 	player.draw = function(context) {
 		context.fillStyle = "#ff0000";
 		context.fillRect(this.x, this.y, this.width, this.height);
