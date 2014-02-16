@@ -31,6 +31,7 @@ var walls = [];
 var obstacles = [];
 var onWall;
 var dead = false;
+var waitingToStart = true;
 var jumpSounds = ["jump1", "jump2", "jump3", "jump4", "jump5"];
 var bgY = 0;
 var points;
@@ -56,7 +57,7 @@ function makeWall(y) {
 	wall.draw = drawFlipped;
 	walls.push(wall);
 
-	if (y < -500 && Math.random() > 0.6) {
+	if (Math.random() > 0.6) {
 		var img = game.images.get(Math.random() > 0.5 ? "laser" : "spikes");
 		var laser = new Splat.AnimatedEntity(wallImg.width - 8, y, img.width, img.height, img, 0, 0);
 		if (Math.random() > 0.5) {
@@ -67,7 +68,7 @@ function makeWall(y) {
 	}
 }
 
-function populateWalls(scene) {
+function populateWallsUp(scene) {
 	var wallH = game.images.get("wall1").height;
 	if (walls.length == 0) {
 		makeWall(scene.camera.y + scene.camera.height - wallH);
@@ -82,6 +83,21 @@ function populateWalls(scene) {
 		obstacles.shift();
 	}
 }
+function populateWallsDown(scene) {
+	var wallH = game.images.get("wall1").height;
+	if (walls.length == 0) {
+		makeWall(scene.camera.y);
+	}
+	while (walls[0].y < scene.camera.y + scene.camera.height) {
+		makeWall(walls[0].y + wallH);
+		walls.unshift(walls.pop());
+		walls.unshift(walls.pop());
+	}
+	while (walls[walls.length - 1].y + walls[walls.length - 1].height < scene.camera.y) {
+		walls.pop();
+	}
+	obstacles = [];
+}
 
 function oscillate(current, period, height) {
 	return Math.sin(current / period * Math.PI) * height;
@@ -95,8 +111,11 @@ function centerText(context, text, offsetX, offsetY) {
 }
 
 game.scenes.add("title", new Splat.Scene(canvas, function() {
+	walls = [];
+	obstacles = [];
+	waitingToStart = true;
 	dead = false;
-	this.camera.vy = -0.6;
+	this.camera.y = 0;
 	points = 0;
 
 	var wallW = game.images.get("wall1").width;
@@ -109,6 +128,15 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	this.clearTimers();
 },
 function(elapsedMillis) {
+	if (waitingToStart) {
+		this.camera.vy = 0.6;
+		player.vy = this.camera.vy;
+		if (game.keyboard.isPressed("left") || game.keyboard.isPressed("right") || game.mouse.buttons[0]) {
+			waitingToStart = false;
+			this.camera.vy = -0.6;
+		}
+	}
+
 	bgY -= this.camera.vy / 1.5 * elapsedMillis;
 	var bgH = game.images.get("bg").height;
 	if (bgY > bgH) {
@@ -120,6 +148,15 @@ function(elapsedMillis) {
 			game.sounds.play("spikes");
 		}
 		dead = true;
+
+		var ftb = this.timer("fade to black");
+		if (ftb > 1000) {
+			game.scenes.switchTo("title");
+		}
+		if (!ftb) {
+			this.startTimer("fade to black");
+		}
+
 		this.camera.vy = 0;
 		return;
 	}
@@ -130,11 +167,17 @@ function(elapsedMillis) {
 	for (var i = 0; i < obstacles.length; i++) {
 		obstacles[i].move(elapsedMillis);
 	}
-	populateWalls(this);
+	if (this.camera.vy > 0) {
+		populateWallsDown(this);
+	} else {
+		populateWallsUp(this);
+	}
 
 	// gravity
-	player.vy += elapsedMillis * 0.003;
-	if (onWall && !dead && player.vy > 0.5) {
+	if (!waitingToStart) {
+		player.vy += elapsedMillis * 0.003;
+	}
+	if (onWall && !dead && !waitingToStart && player.vy > 0.5) {
 		player.vy = 0.5;
 	}
 
@@ -260,6 +303,13 @@ function(context) {
 	if (flashTime > 0) {
 		var opacity = oscillate(this.timer("flash"), flashLen, 1);
 		context.fillStyle = "rgba(255, 255, 255, " + opacity + ")";
+		context.fillRect(this.camera.x, this.camera.y, canvas.width, canvas.height);
+	}
+
+	var ftb = this.timer("fade to black");
+	if (ftb > 0) {
+		var opacity = ftb / 1000;
+		context.fillStyle = "rgba(0, 0, 0, " + opacity + ")";
 		context.fillRect(this.camera.x, this.camera.y, canvas.width, canvas.height);
 	}
 
