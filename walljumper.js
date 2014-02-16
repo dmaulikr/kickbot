@@ -198,8 +198,8 @@ function getBest() {
 	return b;
 }
 
-function setBest(newBest) {
-	best = newBest;
+function setBest(b) {
+	best = b;
 	var expire = new Date();
 	expire.setTime(expire.getTime() + 1000 * 60 * 60 * 24 * 365);
 	var cookie = "bestScore=" + best + "; expires=" + expire.toUTCString() + ";";
@@ -591,7 +591,7 @@ function(context) {
 			context.font = "50px pixelade";
 			if (newBest) {
 				context.fillStyle = "#be4682";
-			centerText(context, "NEW BEST!", 0, 600);
+				centerText(context, "NEW BEST!", 0, 600);
 			} else {
 				centerText(context, "BEST", 0, 600);
 			}
