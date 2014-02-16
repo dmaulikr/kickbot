@@ -5,6 +5,7 @@ var manifest = {
 		"wall1": "images/wall1.png",
 		"wall2": "images/wall2.png",
 		"laser": "images/laser.png",
+		"bg": "images/bg.png",
 	},
 	"sounds": {
 	},
@@ -22,6 +23,8 @@ var walls = [];
 var obstacles = [];
 var onWall;
 var dead = false;
+
+var bgY = 0;
 
 function drawFlipped(context) {
 	context.save();
@@ -78,6 +81,12 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	this.clearTimers();
 },
 function(elapsedMillis) {
+	bgY -= this.camera.vy / 1.5 * elapsedMillis;
+	var bgH = game.images.get("bg").height;
+	if (bgY > bgH) {
+		bgY -= bgH;
+	}
+
 	if (player.y > this.camera.y + this.camera.height) {
 		dead = true;
 		this.camera.vy = 0;
@@ -135,8 +144,13 @@ function(elapsedMillis) {
 	}
 },
 function(context) {
-	context.fillStyle = "rgb(60, 60, 60)";
-	context.fillRect(this.camera.x, this.camera.y, canvas.width, canvas.height);
+	this.camera.drawAbsolute(context, function() {
+		var bg = game.images.get("bg");
+		for (var y = bgY - bg.height; y <= canvas.height; y += bg.height)  {
+			context.drawImage(bg, 0, y);
+		}
+	});
+
 	for (var i = 0; i < walls.length; i++) {
 		walls[i].draw(context);
 	}
