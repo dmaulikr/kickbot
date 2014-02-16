@@ -182,25 +182,31 @@ function jumpSound() {
 	game.sounds.play(jumpSounds[i]);
 }
 
-function chooseWall(y, possibleWalls) {
+function chooseWall(y, possibleWalls, isLeft) {
 	var i = Math.random() * possibleWalls.length |0;
-	var anim = game.animations.get(possibleWalls[i] + "-left");
-	var wall = new Splat.AnimatedEntity(0, y, anim.width, anim.height, anim, 0, 0);
-	walls.push(wall);
-
-	anim = game.animations.get(possibleWalls[i] + "-right");
-	wall = new Splat.AnimatedEntity(canvas.width - anim.width, y, anim.width, anim.height, anim, 0, 0);
+	var name = isLeft ? "-left" : "-right";
+	var anim = game.animations.get(possibleWalls[i] + name);
+	var x = 0;
+	if (!isLeft) {
+		x = canvas.width - anim.width;
+	}
+	var wall = new Splat.AnimatedEntity(x, y, anim.width, anim.height, anim, 0, 0);
 	walls.push(wall);
 }
 
 function makeWall(y) {
 	var hasObstacle = Math.random() > 0.6;
 
+	function getWindowImages() {
+		return Math.random() > 0.7 ? windowImages : wallImages;
+	}
+
 	if (hasObstacle) {
-		chooseWall(y, wallImages);
+		var onRight = Math.random() > 0.5;
+		chooseWall(y, onRight ? getWindowImages() : wallImages, true);
+		chooseWall(y, onRight ? wallImages : getWindowImages(), false);
 
 		var img;
-		var onRight = Math.random() > 0.5;
 		var obstacle;
 
 		var wallImg = game.animations.get("wall-1-left");
@@ -220,7 +226,8 @@ function makeWall(y) {
 		}
 		obstacles.push(obstacle);
 	} else {
-		chooseWall(y, Math.random() > 0.7 ? windowImages : wallImages);
+		chooseWall(y, getWindowImages(), true);
+		chooseWall(y, getWindowImages(), false);
 	}
 }
 
