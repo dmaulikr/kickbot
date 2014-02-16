@@ -196,6 +196,7 @@ var jumpSounds = ["jump1", "jump2", "jump3", "jump4", "jump5"];
 var bgY = 0;
 var score = 0;
 var best = 0;
+var newBest = false;
 
 function drawFlipped(context) {
 	context.save();
@@ -332,6 +333,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	dead = false;
 	this.camera.y = 0;
 	score = 0;
+	newBest = false;
 
 	var wallW = game.animations.get("wall-1-left").width;
 	var playerImg = game.animations.get("player-slide-left");
@@ -465,6 +467,7 @@ function(elapsedMillis) {
 			game.sounds.play("point");
 			if (score > best) {
 				best = score;
+				newBest = true;
 			}
 			obstacle.counted = true;
 		}
@@ -561,8 +564,15 @@ function(context) {
 			centerText(context, "SCORE", 0, 300);
 			context.font = "100px pixelade";
 			centerText(context, score, 0, 400);
+
 			context.font = "50px pixelade";
-			centerText(context, "BEST", 0, 600);
+			if (newBest) {
+				context.fillStyle = "#be4682";
+			centerText(context, "NEW BEST!", 0, 600);
+			} else {
+				centerText(context, "BEST", 0, 600);
+			}
+
 			context.font = "100px pixelade";
 			centerText(context, best, 0, 700);
 		});
