@@ -342,13 +342,6 @@ function anythingWasPressed() {
 	return game.keyboard.isPressed("left") || game.keyboard.isPressed("right") || game.mouse.buttons[0];
 }
 
-function consumeAnythingWasPressed() {
-	var ret = game.keyboard.consumePressed("left") || game.keyboard.consumePressed("right") || game.mouse.buttons[0];
-	game.mouse.buttons[0] = false;
-	return ret;
-}
-
-
 game.scenes.add("main", new Splat.Scene(canvas, function() {
 	walls = [];
 	obstacles = [];
@@ -399,7 +392,7 @@ function(elapsedMillis) {
 		dead = true;
 
 		var ftb = this.timer("fade to black");
-		if (ftb > 2000 || consumeAnythingWasPressed()) {
+		if (ftb > 800) {
 			game.scenes.switchTo("main");
 		}
 		if (!ftb) {
@@ -577,7 +570,7 @@ function(context) {
 
 	var ftb = this.timer("fade to black");
 	if (ftb > 0) {
-		var opacity = ftb / 1000;
+		var opacity = ftb / 300;
 		context.fillStyle = "rgba(0, 0, 0, " + opacity + ")";
 		context.fillRect(this.camera.x, this.camera.y, canvas.width, canvas.height);
 
