@@ -19,6 +19,7 @@ var manifest = {
 		"music": "audio/Rolemusic_-_01_-_A_ninja_among_culturachippers-mono-loop.mp3",
 	},
 	"fonts": [
+		"pixelade"
 	],
 	"animations": {
 	}
