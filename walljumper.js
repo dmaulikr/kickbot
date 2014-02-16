@@ -43,6 +43,28 @@ var manifest = {
 			"msPerFrame": 70,
 			"flip": "horizontal"
 		},
+		"player-left": {
+			"strip": "images/player.png",
+			"frames": 1,
+			"msPerFrame": 70
+		},
+		"player-right": {
+			"strip": "images/player.png",
+			"frames": 1,
+			"msPerFrame": 70,
+			"flip": "horizontal"
+		},
+		"player-slide-left": {
+			"strip": "images/player-slide.png",
+			"frames": 1,
+			"msPerFrame": 70
+		},
+		"player-slide-right": {
+			"strip": "images/player-slide.png",
+			"frames": 1,
+			"msPerFrame": 70,
+			"flip": "horizontal"
+		},
 	}
 };
 
@@ -153,11 +175,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	points = 0;
 
 	var wallW = game.images.get("wall1").width;
-	player = new Splat.Entity(wallW, canvas.height / 2, 50, 50);
-	player.draw = function(context) {
-		context.fillStyle = "#ff0000";
-		context.fillRect(this.x, this.y, this.width, this.height);
-	};
+	var playerImg = game.animations.get("player-slide-left");
+	player = new Splat.AnimatedEntity(wallW, canvas.height / 2, 40, 130, playerImg, -30, -13);
 
 	this.clearTimers();
 
@@ -260,6 +279,21 @@ function(elapsedMillis) {
 	if (dead) {
 		return;
 	}
+	if (onWall) {
+		var wallIsOnLeft = player.x > onWall.x;
+		if (wallIsOnLeft) {
+			player.sprite = game.animations.get("player-slide-left");
+		} else {
+			player.sprite = game.animations.get("player-slide-right");
+		}
+	} else {
+		if (player.vx > 0) {
+			player.sprite = game.animations.get("player-left");
+		} else if (player.vx < 0) {
+			player.sprite = game.animations.get("player-right");
+		}
+	}
+
 	for (var i = 0; i < obstacles.length; i++) {
 		var obstacle = obstacles[i];
 		if (!obstacle.counted && obstacle.y > player.y + player.height) {
