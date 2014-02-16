@@ -164,7 +164,7 @@ var onWall;
 var dead = false;
 var waitingToStart = true;
 var wallImages = ["wall-1", "wall-2"];
-var windowImages = ["wall-1", "wall-2", "window-1", "window-2", "window-3", "window-4", "window-5"];
+var windowImages = ["window-1", "window-2", "window-3", "window-4", "window-5"];
 var jumpSounds = ["jump1", "jump2", "jump3", "jump4", "jump5"];
 var bgY = 0;
 var score = 0;
@@ -197,14 +197,28 @@ function chooseWall(y, possibleWalls, isLeft) {
 function makeWall(y) {
 	var hasObstacle = Math.random() > 0.6;
 
-	function getWindowImages() {
-		return Math.random() > 0.7 ? windowImages : wallImages;
+	var lastLeftWall = walls[walls.length - 2];
+	var lastLeftWallIsWindow = false;
+	if (lastLeftWall) {
+		lastLeftWallIsWindow = lastLeftWall.sprite.name.indexOf("window") > -1;
+	}
+	var lastRightWall = walls[walls.length - 1];
+	var lastRightWallIsWindow = false;
+	if (lastRightWall) {
+		lastRightWallIsWindow = lastRightWall.sprite.name.indexOf("window") > -1;
+	}
+
+	function getWindowImages(isLeft) {
+		if ((isLeft && lastLeftWallIsWindow) || (!isLeft && lastRightWallIsWindow)) {
+			return wallImages;
+		}
+		return Math.random() > 0.9 ? windowImages : wallImages;
 	}
 
 	if (hasObstacle) {
 		var onRight = Math.random() > 0.5;
-		chooseWall(y, onRight ? getWindowImages() : wallImages, true);
-		chooseWall(y, onRight ? wallImages : getWindowImages(), false);
+		chooseWall(y, onRight ? getWindowImages(true) : wallImages, true);
+		chooseWall(y, onRight ? wallImages : getWindowImages(false), false);
 
 		var img;
 		var obstacle;
@@ -226,8 +240,8 @@ function makeWall(y) {
 		}
 		obstacles.push(obstacle);
 	} else {
-		chooseWall(y, getWindowImages(), true);
-		chooseWall(y, getWindowImages(), false);
+		chooseWall(y, getWindowImages(true), true);
+		chooseWall(y, getWindowImages(false), false);
 	}
 }
 
