@@ -13,6 +13,7 @@ var manifest = {
 		"jump5": "audio/jump5.wav",
 		"laser": "audio/laser.wav",
 		"spikes": "audio/spikes.wav",
+		"point": "audio/point.wav",
 		"music": "audio/Rolemusic_-_01_-_A_ninja_among_culturachippers-mono-loop.mp3",
 	},
 	"fonts": [
@@ -450,6 +451,7 @@ function(elapsedMillis) {
 		var obstacle = obstacles[i];
 		if (!obstacle.counted && obstacle.y > player.y + player.height) {
 			score++;
+			game.sounds.play("point");
 			if (score > best) {
 				best = score;
 			}
