@@ -163,7 +163,22 @@ function(elapsedMillis) {
 	if (onWall) {
 		var wallIsOnLeft = player.x > onWall.x;
 
-		if (game.keyboard.consumePressed("left")) {
+		var left = false;
+		var right = false;
+		if (game.mouse.buttons[0]) {
+			if (game.mouse.x < canvas.width / 2) {
+				left = true;
+			} else {
+				right = true;
+			}
+			game.mouse.buttons[0] = false;
+		} else if (game.keyboard.consumePressed("left")) {
+			left = true;
+		} else if (game.keyboard.consumePressed("right")) {
+			right = true;
+		}
+
+		if (left) {
 			if (wallIsOnLeft) {
 				this.startTimer("left jump up");
 			} else {
@@ -171,7 +186,7 @@ function(elapsedMillis) {
 			}
 			player.vy = -1.5;
 			onWall = undefined;
-		} else if (game.keyboard.consumePressed("right")) {
+		} else if (right) {
 			if (wallIsOnLeft) {
 				player.vx = 1.0;
 			} else {
