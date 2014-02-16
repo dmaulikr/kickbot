@@ -16,6 +16,7 @@ var manifest = {
 		"jump5": "audio/jump5.wav",
 		"laser": "audio/laser.wav",
 		"spikes": "audio/spikes.wav",
+		"music": "audio/Rolemusic_-_01_-_A_ninja_among_culturachippers-mono-loop.mp3",
 	},
 	"fonts": [
 	],
@@ -132,6 +133,7 @@ function(elapsedMillis) {
 		this.camera.vy = 0.6;
 		player.vy = this.camera.vy;
 		if (game.keyboard.isPressed("left") || game.keyboard.isPressed("right") || game.mouse.buttons[0]) {
+			game.sounds.play("music", true);
 			waitingToStart = false;
 			this.camera.vy = -0.6;
 		}
