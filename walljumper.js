@@ -2,8 +2,6 @@ var canvas = document.getElementById("game");
 
 var manifest = {
 	"images": {
-		"wall1": "images/wall1.png",
-		"wall2": "images/wall2.png",
 		"spikes": "images/spikes.png",
 		"bg": "images/bg.png",
 	},
@@ -65,6 +63,28 @@ var manifest = {
 			"msPerFrame": 70,
 			"flip": "horizontal"
 		},
+		"wall-1-left": {
+			"strip": "images/wall1.png",
+			"frames": 1,
+			"msPerFrame": 300
+		},
+		"wall-1-right": {
+			"strip": "images/wall1.png",
+			"frames": 1,
+			"msPerFrame": 300,
+			"flip": "horizontal"
+		},
+		"wall-2-left": {
+			"strip": "images/wall2.png",
+			"frames": 1,
+			"msPerFrame": 300
+		},
+		"wall-2-right": {
+			"strip": "images/wall2.png",
+			"frames": 1,
+			"msPerFrame": 300,
+			"flip": "horizontal"
+		},
 		"player-slide-left": {
 			"strip": "images/player-slide-anim.png",
 			"frames": 8,
@@ -74,6 +94,61 @@ var manifest = {
 			"strip": "images/player-slide-anim.png",
 			"frames": 8,
 			"msPerFrame": 100,
+			"flip": "horizontal"
+		},
+		"window-1-left": {
+			"strip": "images/wall-grate.png",
+			"frames": 1,
+			"msPerFrame": 300
+		},
+		"window-1-right": {
+			"strip": "images/wall-grate.png",
+			"frames": 1,
+			"msPerFrame": 300,
+			"flip": "horizontal"
+		},
+		"window-2-left": {
+			"strip": "images/window-robot-2f.png",
+			"frames": 2,
+			"msPerFrame": 300
+		},
+		"window-2-right": {
+			"strip": "images/window-robot-2f.png",
+			"frames": 2,
+			"msPerFrame": 300,
+			"flip": "horizontal"
+		},
+		"window-3-left": {
+			"strip": "images/window-scientist1.png",
+			"frames": 2,
+			"msPerFrame": 300
+		},
+		"window-3-right": {
+			"strip": "images/window-scientist1.png",
+			"frames": 2,
+			"msPerFrame": 300,
+			"flip": "horizontal"
+		},
+		"window-4-left": {
+			"strip": "images/window-scientist2.png",
+			"frames": 2,
+			"msPerFrame": 300
+		},
+		"window-4-right": {
+			"strip": "images/window-scientist2.png",
+			"frames": 2,
+			"msPerFrame": 300,
+			"flip": "horizontal"
+		},
+		"window-5-left": {
+			"strip": "images/window-scientist3.png",
+			"frames": 2,
+			"msPerFrame": 300
+		},
+		"window-5-right": {
+			"strip": "images/window-scientist3.png",
+			"frames": 2,
+			"msPerFrame": 300,
 			"flip": "horizontal"
 		},
 	}
@@ -88,6 +163,8 @@ var obstacles = [];
 var onWall;
 var dead = false;
 var waitingToStart = true;
+var wallImages = ["wall-1", "wall-2"];
+var windowImages = ["wall-1", "wall-2", "window-1", "window-2", "window-3", "window-4", "window-5"];
 var jumpSounds = ["jump1", "jump2", "jump3", "jump4", "jump5"];
 var bgY = 0;
 var score = 0;
@@ -105,26 +182,35 @@ function jumpSound() {
 	game.sounds.play(jumpSounds[i]);
 }
 
+function chooseWall(y, possibleWalls) {
+	var i = Math.random() * possibleWalls.length |0;
+	var anim = game.animations.get(possibleWalls[i] + "-left");
+	var wall = new Splat.AnimatedEntity(0, y, anim.width, anim.height, anim, 0, 0);
+	walls.push(wall);
+
+	anim = game.animations.get(possibleWalls[i] + "-right");
+	wall = new Splat.AnimatedEntity(canvas.width - anim.width, y, anim.width, anim.height, anim, 0, 0);
+	walls.push(wall);
+}
+
 function makeWall(y) {
-	var wallImg = game.images.get(Math.random() > 0.5 ? "wall1" : "wall2");
-	var wall = new Splat.AnimatedEntity(0, y, wallImg.width, wallImg.height, wallImg, 0, 0);
-	walls.push(wall);
+	var hasObstacle = Math.random() > 0.6;
 
-	wall = new Splat.AnimatedEntity(canvas.width - wallImg.width, y, wallImg.width, wallImg.height, wallImg, 0, 0);
-	wall.draw = drawFlipped;
-	walls.push(wall);
+	if (hasObstacle) {
+		chooseWall(y, wallImages);
 
-	if (Math.random() > 0.6) {
 		var img;
 		var onRight = Math.random() > 0.5;
 		var obstacle;
 
+		var wallImg = game.animations.get("wall-1-left");
+		var x = wallImg.width - 8;
 		if (Math.random() > 0.5) {
 			img = game.animations.get(onRight ? "laser-right" : "laser-left");
-			obstacle = new Splat.AnimatedEntity(wallImg.width - 8, y, img.width, img.height, img, 0, 0);
+			obstacle = new Splat.AnimatedEntity(x, y, img.width, img.height, img, 0, 0);
 		} else {
 			img = game.images.get("spikes");
-			obstacle = new Splat.AnimatedEntity(wallImg.width - 8, y, img.width, img.height, img, 0, 0);
+			obstacle = new Splat.AnimatedEntity(x, y, img.width, img.height, img, 0, 0);
 			if (onRight) {
 				obstacle.draw = drawFlipped;
 			}
@@ -133,11 +219,13 @@ function makeWall(y) {
 			obstacle.x = canvas.width - wallImg.width - img.width + 8;
 		}
 		obstacles.push(obstacle);
+	} else {
+		chooseWall(y, Math.random() > 0.7 ? windowImages : wallImages);
 	}
 }
 
 function populateWallsUp(scene) {
-	var wallH = game.images.get("wall1").height;
+	var wallH = game.animations.get("wall-1-left").height;
 	if (walls.length == 0) {
 		makeWall(scene.camera.y + scene.camera.height - wallH);
 	}
@@ -152,7 +240,7 @@ function populateWallsUp(scene) {
 	}
 }
 function populateWallsDown(scene) {
-	var wallH = game.images.get("wall1").height;
+	var wallH = game.animations.get("wall-1-left").height;
 	if (walls.length == 0) {
 		makeWall(scene.camera.y);
 	}
@@ -186,7 +274,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	this.camera.y = 0;
 	score = 0;
 
-	var wallW = game.images.get("wall1").width;
+	var wallW = game.animations.get("wall-1-left").width;
 	var playerImg = game.animations.get("player-slide-left");
 	player = new Splat.AnimatedEntity(wallW, canvas.height / 2, 40, 130, playerImg, -30, -13);
 
