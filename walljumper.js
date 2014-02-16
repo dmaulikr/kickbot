@@ -3,7 +3,8 @@ var canvas = document.getElementById("game");
 var manifest = {
 	"images": {
 		"wall1": "images/wall1.png",
-		"wall2": "images/wall2.png"
+		"wall2": "images/wall2.png",
+		"laser": "images/laser.png",
 	},
 	"sounds": {
 	},
@@ -18,12 +19,9 @@ var game = new Splat.Game(canvas, manifest);
 var player;
 
 var walls = [];
+var obstacles = [];
 var onWall;
-
-function drawWall(context) {
-	context.fillStyle = this.color;
-	context.fillRect(this.x, this.y, this.width, this.height);
-}
+var dead = false;
 
 function drawFlipped(context) {
 	context.save();
@@ -33,13 +31,23 @@ function drawFlipped(context) {
 }
 
 function makeWall(y) {
-	var img = game.images.get(Math.random() > 0.5 ? "wall1" : "wall2");
-	var wall = new Splat.AnimatedEntity(0, y, img.width, img.height, img, 0, 0);
+	var wallImg = game.images.get(Math.random() > 0.5 ? "wall1" : "wall2");
+	var wall = new Splat.AnimatedEntity(0, y, wallImg.width, wallImg.height, wallImg, 0, 0);
 	walls.push(wall);
 
-	wall = new Splat.AnimatedEntity(canvas.width - img.width, y, img.width, img.height, img, 0, 0);
+	wall = new Splat.AnimatedEntity(canvas.width - wallImg.width, y, wallImg.width, wallImg.height, wallImg, 0, 0);
 	wall.draw = drawFlipped;
 	walls.push(wall);
+
+	if (Math.random() > 0.8) {
+		var img = game.images.get("laser");
+		var laser = new Splat.AnimatedEntity(wallImg.width - 8, y, img.width, img.height, img, 0, 0);
+		if (Math.random() > 0.5) {
+			laser.draw = drawFlipped;
+			laser.x = canvas.width - wallImg.width - img.width + 8;
+		}
+		obstacles.push(laser);
+	}
 }
 
 function populateWalls(scene) {
@@ -52,9 +60,13 @@ function populateWalls(scene) {
 	while (walls[0].y > scene.camera.y + scene.camera.height) {
 		walls.shift();
 	}
+	while (obstacles.length > 0 && obstacles[0].y > scene.camera.y + scene.camera.height) {
+		obstacles.shift();
+	}
 }
 
 game.scenes.add("title", new Splat.Scene(canvas, function() {
+	dead = false;
 	this.camera.vy = -0.3;
 
 	player = new Splat.Entity(84, canvas.height / 2, 50, 50);
@@ -64,14 +76,17 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	};
 },
 function(elapsedMillis) {
-	// dead
 	if (player.y > this.camera.y + this.camera.height) {
+		dead = true;
 		this.camera.vy = 0;
 		return;
 	}
 
 	for (var i = 0; i < walls.length; i++) {
 		walls[i].move(elapsedMillis);
+	}
+	for (var i = 0; i < obstacles.length; i++) {
+		obstacles[i].move(elapsedMillis);
 	}
 	populateWalls(this);
 
@@ -96,6 +111,16 @@ function(elapsedMillis) {
 			}
 		}
 	}
+	if (dead) {
+		return;
+	}
+	for (var i = 0; i < obstacles.length; i++) {
+		var obstacle = obstacles[i];
+		if (player.collides(obstacle)) {
+			dead = true;
+			return;
+		}
+	}
 
 	if (onWall && game.keyboard.consumePressed("space")) {
 		player.vx = 1.0;
@@ -107,10 +132,13 @@ function(elapsedMillis) {
 	}
 },
 function(context) {
-	context.fillStyle = "#3d5a64";
+	context.fillStyle = "rgb(60, 60, 60)";
 	context.fillRect(this.camera.x, this.camera.y, canvas.width, canvas.height);
 	for (var i = 0; i < walls.length; i++) {
 		walls[i].draw(context);
+	}
+	for (var i = 0; i < obstacles.length; i++) {
+		obstacles[i].draw(context);
 	}
 	player.draw(context);
 }));
