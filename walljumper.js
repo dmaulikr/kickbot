@@ -32,6 +32,17 @@ var manifest = {
 			"msPerFrame": 500,
 			"flip": "horizontal"
 		},
+		"tap-left": {
+			"strip": "images/tap-icons-sprite.png",
+			"frames": 2,
+			"msPerFrame": 500
+		},
+		"tap-right": {
+			"strip": "images/tap-icons-sprite.png",
+			"frames": 2,
+			"msPerFrame": 500,
+			"flip": "horizontal"
+		},
 		"laser-left": {
 			"strip": "images/laser-anim.png",
 			"frames": 12,
@@ -183,6 +194,9 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	game.animations.get("arrow-left").reset();
 	game.animations.get("arrow-right").reset();
 	game.animations.get("arrow-right").frame = 1;
+	game.animations.get("tap-left").reset();
+	game.animations.get("tap-right").reset();
+	game.animations.get("tap-right").frame = 1;
 },
 function(elapsedMillis) {
 	if (waitingToStart) {
@@ -195,6 +209,8 @@ function(elapsedMillis) {
 		}
 		game.animations.get("arrow-left").move(elapsedMillis);
 		game.animations.get("arrow-right").move(elapsedMillis);
+		game.animations.get("tap-left").move(elapsedMillis);
+		game.animations.get("tap-right").move(elapsedMillis);
 	}
 
 	bgY -= this.camera.vy / 1.5 * elapsedMillis;
@@ -390,12 +406,13 @@ function(context) {
 
 	if (waitingToStart) {
 		this.camera.drawAbsolute(context, function() {
-			var arrow = game.animations.get("arrow-left");
+			var isTouch = game.mouse.supportsTouch();
+			var arrow = game.animations.get(isTouch ? "tap-left" : "arrow-left");
 			var x = (canvas.width / 4);
 			arrow.draw(context, x, canvas.height * 3 / 4);
 
 			x = canvas.width - (canvas.width / 4) - arrow.width;
-			game.animations.get("arrow-right").draw(context, x, canvas.height * 3 / 4);
+			game.animations.get(isTouch ? "tap-right" : "arrow-right").draw(context, x, canvas.height * 3 / 4);
 		});
 	}
 	this.camera.drawAbsolute(context, function() {
