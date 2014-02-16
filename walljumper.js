@@ -2,6 +2,8 @@ var canvas = document.getElementById("game");
 
 var manifest = {
 	"images": {
+		"wall1": "images/wall1.png",
+		"wall2": "images/wall2.png"
 	},
 	"sounds": {
 	},
@@ -23,15 +25,20 @@ function drawWall(context) {
 	context.fillRect(this.x, this.y, this.width, this.height);
 }
 
+function drawFlipped(context) {
+	context.save();
+	context.scale(-1, 1);
+	context.drawImage(this.sprite, -this.x - this.sprite.width, this.y);
+	context.restore();
+}
+
 function makeWall(y) {
-	var wall = new Splat.Entity(0, y, 50, 100);
-	wall.color = Math.random() > 0.5 ? "#666666" : "#888888";
-	wall.draw = drawWall;
+	var img = game.images.get(Math.random() > 0.5 ? "wall1" : "wall2");
+	var wall = new Splat.AnimatedEntity(0, y, img.width, img.height, img, 0, 0);
 	walls.push(wall);
 
-	wall = new Splat.Entity(canvas.width - 50, y, 50, 100);
-	wall.color = Math.random() > 0.5 ? "#666666" : "#888888";
-	wall.draw = drawWall;
+	wall = new Splat.AnimatedEntity(canvas.width - img.width, y, img.width, img.height, img, 0, 0);
+	wall.draw = drawFlipped;
 	walls.push(wall);
 }
 
@@ -50,7 +57,7 @@ function populateWalls(scene) {
 game.scenes.add("title", new Splat.Scene(canvas, function() {
 	this.camera.vy = -0.3;
 
-	player = new Splat.Entity(50, canvas.height / 2, 50, 50);
+	player = new Splat.Entity(84, canvas.height / 2, 50, 50);
 	player.draw = function(context) {
 		context.fillStyle = "#ff0000";
 		context.fillRect(this.x, this.y, this.width, this.height);
@@ -100,7 +107,8 @@ function(elapsedMillis) {
 	}
 },
 function(context) {
-	context.clearRect(this.camera.x, this.camera.y, canvas.width, canvas.height);
+	context.fillStyle = "#3d5a64";
+	context.fillRect(this.camera.x, this.camera.y, canvas.width, canvas.height);
 	for (var i = 0; i < walls.length; i++) {
 		walls[i].draw(context);
 	}
