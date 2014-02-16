@@ -90,7 +90,8 @@ var dead = false;
 var waitingToStart = true;
 var jumpSounds = ["jump1", "jump2", "jump3", "jump4", "jump5"];
 var bgY = 0;
-var points;
+var score = 0;
+var best = 0;
 
 function drawFlipped(context) {
 	context.save();
@@ -183,7 +184,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	waitingToStart = true;
 	dead = false;
 	this.camera.y = 0;
-	points = 0;
+	score = 0;
 
 	var wallW = game.images.get("wall1").width;
 	var playerImg = game.animations.get("player-slide-left");
@@ -226,7 +227,7 @@ function(elapsedMillis) {
 		dead = true;
 
 		var ftb = this.timer("fade to black");
-		if (ftb > 1000) {
+		if (ftb > 2000) {
 			game.scenes.switchTo("title");
 		}
 		if (!ftb) {
@@ -313,7 +314,10 @@ function(elapsedMillis) {
 	for (var i = 0; i < obstacles.length; i++) {
 		var obstacle = obstacles[i];
 		if (!obstacle.counted && obstacle.y > player.y + player.height) {
-			points++;
+			score++;
+			if (score > best) {
+				best = score;
+			}
 			obstacle.counted = true;
 		}
 		if (player.collides(obstacle)) {
@@ -402,6 +406,19 @@ function(context) {
 		var opacity = ftb / 1000;
 		context.fillStyle = "rgba(0, 0, 0, " + opacity + ")";
 		context.fillRect(this.camera.x, this.camera.y, canvas.width, canvas.height);
+
+		this.camera.drawAbsolute(context, function() {
+			context.fillStyle = "#ffffff";
+			context.font = "50px pixelade";
+			centerText(context, "SCORE", 0, 300);
+			context.font = "100px pixelade";
+			centerText(context, score, 0, 400);
+			context.font = "50px pixelade";
+			centerText(context, "BEST", 0, 600);
+			context.font = "100px pixelade";
+			centerText(context, best, 0, 700);
+		});
+		return;
 	}
 
 	if (waitingToStart) {
@@ -418,7 +435,7 @@ function(context) {
 	this.camera.drawAbsolute(context, function() {
 		context.fillStyle = "#ffffff";
 		context.font = "100px pixelade";
-		centerText(context, points, 0, 100);
+		centerText(context, score, 0, 100);
 	});
 }));
 
