@@ -75,7 +75,7 @@ function oscillate(current, period, height) {
 
 game.scenes.add("title", new Splat.Scene(canvas, function() {
 	dead = false;
-	this.camera.vy = -0.3;
+	this.camera.vy = -0.6;
 
 	var wallW = game.images.get("wall1").width;
 	player = new Splat.Entity(wallW, canvas.height / 2, 50, 50);
@@ -113,6 +113,24 @@ function(elapsedMillis) {
 		player.vy = 0.5;
 	}
 
+	var lju = this.timer("left jump up");
+	if (lju > 200) {
+		this.stopTimer("left jump up");
+		lju = 0;
+	}
+	if (lju > 0) {
+		player.vx = oscillate(lju + 100, 200, 1);
+	}
+
+	var rju = this.timer("right jump up");
+	if (rju > 200) {
+		this.stopTimer("right jump up");
+		rju = 0;
+	}
+	if (rju > 0) {
+		player.vx = -oscillate(rju + 100, 200, 1);
+	}
+
 	player.move(elapsedMillis);
 
 	onWall = undefined;
@@ -122,6 +140,8 @@ function(elapsedMillis) {
 			player.resolveLeftCollisionWith(wall);
 			player.resolveRightCollisionWith(wall);
 			player.resolveTopCollisionWith(wall);
+			this.stopTimer("left jump up");
+			this.stopTimer("right jump up");
 
 			if (player.overlapsVert(wall)) {
 				onWall = wall;
@@ -140,13 +160,26 @@ function(elapsedMillis) {
 		}
 	}
 
-	if (onWall && game.keyboard.consumePressed("space")) {
-		player.vx = 1.0;
-		if (onWall.x > player.x) {
-			player.vx *= -1;
+	if (onWall) {
+		var wallIsOnLeft = player.x > onWall.x;
+
+		if (game.keyboard.consumePressed("left")) {
+			if (wallIsOnLeft) {
+				this.startTimer("left jump up");
+			} else {
+				player.vx = -1.0;
+			}
+			player.vy = -1.5;
+			onWall = undefined;
+		} else if (game.keyboard.consumePressed("right")) {
+			if (wallIsOnLeft) {
+				player.vx = 1.0;
+			} else {
+				this.startTimer("right jump up");
+			}
+			player.vy = -1.5;
+			onWall = undefined;
 		}
-		player.vy = -1.5;
-		onWall = undefined;
 	}
 },
 function(context) {
