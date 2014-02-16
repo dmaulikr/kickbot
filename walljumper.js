@@ -183,6 +183,29 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	anim.draw(context, (canvas.width / 2) - (anim.width / 2), (canvas.height / 2) - (anim.height / 2));
 }));
 
+function getCookie(name) {
+	var value = "; " + document.cookie;
+	var parts = value.split("; " + name + "=");
+	if (parts.length == 2) {
+		return parts.pop().split(";").shift();
+	}
+}
+function getBest() {
+	var b = parseInt(getCookie("bestScore"));
+	if (isNaN(b) || b < 0 || !b) {
+		b = 0;
+	}
+	return b;
+}
+
+function setBest(newBest) {
+	best = newBest;
+	var expire = new Date();
+	expire.setTime(expire.getTime() + 1000 * 60 * 60 * 24 * 365);
+	var cookie = "bestScore=" + best + "; expires=" + expire.toUTCString() + ";";
+	document.cookie = cookie;
+}
+
 var player;
 
 var walls = [];
@@ -195,7 +218,7 @@ var windowImages = ["window-1", "window-2", "window-3", "window-4", "window-5"];
 var jumpSounds = ["jump1", "jump2", "jump3", "jump4", "jump5"];
 var bgY = 0;
 var score = 0;
-var best = 0;
+var best = getBest();
 var newBest = false;
 
 function drawFlipped(context) {
@@ -466,7 +489,7 @@ function(elapsedMillis) {
 			score++;
 			game.sounds.play("point");
 			if (score > best) {
-				best = score;
+				setBest(score);
 				newBest = true;
 			}
 			obstacle.counted = true;
