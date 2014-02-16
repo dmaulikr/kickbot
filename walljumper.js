@@ -4,7 +4,6 @@ var manifest = {
 	"images": {
 		"wall1": "images/wall1.png",
 		"wall2": "images/wall2.png",
-		"laser": "images/laser.png",
 		"spikes": "images/spikes.png",
 		"bg": "images/bg.png",
 	},
@@ -31,6 +30,17 @@ var manifest = {
 			"strip": "images/arrow-key-sprite.png",
 			"frames": 2,
 			"msPerFrame": 500,
+			"flip": "horizontal"
+		},
+		"laser-left": {
+			"strip": "images/laser-anim.png",
+			"frames": 12,
+			"msPerFrame": 70
+		},
+		"laser-right": {
+			"strip": "images/laser-anim.png",
+			"frames": 12,
+			"msPerFrame": 70,
 			"flip": "horizontal"
 		},
 	}
@@ -71,13 +81,24 @@ function makeWall(y) {
 	walls.push(wall);
 
 	if (Math.random() > 0.6) {
-		var img = game.images.get(Math.random() > 0.5 ? "laser" : "spikes");
-		var laser = new Splat.AnimatedEntity(wallImg.width - 8, y, img.width, img.height, img, 0, 0);
+		var img;
+		var onRight = Math.random() > 0.5;
+		var obstacle;
+
 		if (Math.random() > 0.5) {
-			laser.draw = drawFlipped;
-			laser.x = canvas.width - wallImg.width - img.width + 8;
+			img = game.animations.get(onRight ? "laser-right" : "laser-left");
+			obstacle = new Splat.AnimatedEntity(wallImg.width - 8, y, img.width, img.height, img, 0, 0);
+		} else {
+			img = game.images.get("spikes");
+			obstacle = new Splat.AnimatedEntity(wallImg.width - 8, y, img.width, img.height, img, 0, 0);
+			if (onRight) {
+				obstacle.draw = drawFlipped;
+			}
 		}
-		obstacles.push(laser);
+		if (onRight) {
+			obstacle.x = canvas.width - wallImg.width - img.width + 8;
+		}
+		obstacles.push(obstacle);
 	}
 }
 
@@ -247,7 +268,7 @@ function(elapsedMillis) {
 		}
 		if (player.collides(obstacle)) {
 			if (!this.timer("flash")) {
-				if (obstacle.sprite == game.images.get("laser")) {
+				if (obstacle.sprite == game.animations.get("laser-left") || obstacle.sprite == game.animations.get("laser-right")) {
 					game.sounds.play("laser");
 				} else if (obstacle.sprite == game.images.get("spikes")) {
 					game.sounds.play("spikes");
