@@ -278,16 +278,18 @@ function makeWall(y) {
 		var x = wallImg.width - 8;
 		if (Math.random() > 0.5) {
 			img = game.animations.get(onRight ? "laser-right" : "laser-left");
-			obstacle = new Splat.AnimatedEntity(x, y, img.width, img.height, img, 0, 0);
+			if (onRight) {
+				obstacle = new Splat.AnimatedEntity(canvas.width - wallImg.width - img.width + 8 + 4, y + 10, 8, 211, img, -4, -10);
+			} else {
+				obstacle = new Splat.AnimatedEntity(x + 29, y + 10, 8, 211, img, -29, -10);
+			}
 		} else {
 			img = game.images.get("spikes");
 			obstacle = new Splat.AnimatedEntity(x, y, img.width, img.height, img, 0, 0);
 			if (onRight) {
 				obstacle.draw = drawFlipped;
+				obstacle.x = canvas.width - wallImg.width - img.width + 8;
 			}
-		}
-		if (onRight) {
-			obstacle.x = canvas.width - wallImg.width - img.width + 8;
 		}
 		obstacles.push(obstacle);
 	} else {
