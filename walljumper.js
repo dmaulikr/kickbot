@@ -569,6 +569,7 @@ function(context) {
 	this.camera.drawAbsolute(context, function() {
 		var bg = game.images.get("bg");
 		for (var y = bgY - bg.height; y <= canvas.height; y += bg.height)  {
+			y = y |0;
 			context.drawImage(bg, 0, y);
 		}
 	});
