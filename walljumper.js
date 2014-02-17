@@ -258,19 +258,34 @@ function chooseWall(y, possibleWalls, isLeft) {
 	walls.push(wall);
 }
 
+function isWindow(entity) {
+	if (!entity) {
+		return false;
+	}
+	return entity.sprite.name.indexOf("window") > -1;
+}
+
+function wallIsBelowScreen(y) {
+	return y > walls[0].y && y > walls[walls.length - 2].y;
+}
+
+function getLastLeftWall(y) {
+	if (walls.length > 1) {
+		return wallIsBelowScreen(y) ? walls[0] : walls[walls.length - 2];
+	}
+}
+
+function getLastRightWall(y) {
+	if (walls.length > 1) {
+		return wallIsBelowScreen(y) ? walls[1] : walls[walls.length - 1];
+	}
+}
+
 function makeWall(y) {
 	var hasObstacle = Math.random() > 0.6;
 
-	var lastLeftWall = walls[walls.length - 2];
-	var lastLeftWallIsWindow = false;
-	if (lastLeftWall) {
-		lastLeftWallIsWindow = lastLeftWall.sprite.name.indexOf("window") > -1;
-	}
-	var lastRightWall = walls[walls.length - 1];
-	var lastRightWallIsWindow = false;
-	if (lastRightWall) {
-		lastRightWallIsWindow = lastRightWall.sprite.name.indexOf("window") > -1;
-	}
+	var lastLeftWallIsWindow = isWindow(getLastLeftWall(y));
+	var lastRightWallIsWindow = isWindow(getLastRightWall(y));
 
 	function getWindowImages(isLeft) {
 		if ((isLeft && lastLeftWallIsWindow) || (!isLeft && lastRightWallIsWindow)) {
