@@ -281,8 +281,18 @@ function getLastRightWall(y) {
 	}
 }
 
+var lastObstacle = false;
+var pita = 0;
 function makeWall(y) {
-	var hasObstacle = Math.random() > 0.6;
+	var hasObstacle = !lastObstacle;
+	if (!hasObstacle) {
+		pita++;
+	}
+	if (pita == 2) {
+		hasObstacle = true;
+		pita = 0;
+	}
+	lastObstacle = hasObstacle;
 
 	var lastLeftWallIsWindow = isWindow(getLastLeftWall(y));
 	var lastRightWallIsWindow = isWindow(getLastRightWall(y));
