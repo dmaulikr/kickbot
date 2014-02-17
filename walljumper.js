@@ -103,6 +103,19 @@ var manifest = {
 			"msPerFrame": 100,
 			"flip": "horizontal"
 		},
+		"player-explode-left": {
+			"strip": "images/explode.png",
+			"frames": 8,
+			"msPerFrame": 70,
+			"repeatAt": 7
+		},
+		"player-explode-right": {
+			"strip": "images/explode.png",
+			"frames": 8,
+			"msPerFrame": 70,
+			"repeatAt": 7,
+			"flip": "horizontal"
+		},
 		"window-1-left": {
 			"strip": "images/wall-grate.png",
 			"frames": 1,
@@ -492,6 +505,15 @@ function(elapsedMillis) {
 		}
 		if (player.collides(obstacle)) {
 			if (!this.timer("flash")) {
+				var explode;
+				if (player.sprite.name.indexOf("left") > -1) {
+					explode = game.animations.get("player-explode-left");
+				} else {
+					explode = game.animations.get("player-explode-right");
+				}
+				explode.reset();
+				player.sprite = explode;
+
 				if (obstacle.sprite == game.animations.get("laser-left") || obstacle.sprite == game.animations.get("laser-right")) {
 					game.sounds.play("laser");
 				} else if (obstacle.sprite == game.images.get("spikes")) {
