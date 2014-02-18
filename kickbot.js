@@ -4,6 +4,7 @@ var manifest = {
 	"images": {
 		"spikes": "images/spikes.png",
 		"bg": "images/bg.png",
+		"logo": "images/kickbot-logo.png",
 	},
 	"sounds": {
 		"jump1": "audio/jump1.wav",
@@ -648,6 +649,9 @@ function(context) {
 
 	if (waitingToStart) {
 		this.camera.drawAbsolute(context, function() {
+			var logo = game.images.get("logo");
+			context.drawImage(logo, (canvas.width / 2) - (logo.width / 2)|0, 200);
+
 			var isTouch = game.mouse.supportsTouch();
 			var arrow = game.animations.get(isTouch ? "tap-left" : "arrow-left");
 			var x = (canvas.width / 4);
