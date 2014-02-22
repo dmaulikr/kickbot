@@ -10,5 +10,9 @@
 	"icons": {
 		"16": "images/kickbot-icon-16.png",
 		"128": "images/kickbot-icon-128.png"
+	},
+	"developer": {
+		"name": "Two Scoop Games",
+		"url": "http://twoscoopgames.com"
 	}
 }
