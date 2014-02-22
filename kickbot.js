@@ -339,11 +339,16 @@ function makeWall(y) {
 
 function populateWallsUp(scene) {
 	var wallH = game.animations.get("wall-1-left").height;
+	var first = false;
 	if (walls.length == 0) {
 		makeWall(scene.camera.y + scene.camera.height - wallH);
+		first = true;
 	}
 	while (walls[walls.length - 1].y + walls[walls.length - 1].height > scene.camera.y) {
 		makeWall(walls[walls.length - 1].y - wallH);
+	}
+	if (first) {
+		obstacles = [];
 	}
 	while (walls[0].y > scene.camera.y + scene.camera.height) {
 		walls.shift();
@@ -410,7 +415,6 @@ function(elapsedMillis) {
 		this.camera.vy = 0.6;
 		player.vy = this.camera.vy;
 		if (anythingWasPressed()) {
-			obstacles = [];
 			game.sounds.play("music", true);
 			waitingToStart = false;
 			this.camera.vy = -0.6;
