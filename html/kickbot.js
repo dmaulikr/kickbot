@@ -548,7 +548,7 @@ function(elapsedMillis) {
 
 				if (obstacle.sprite == game.animations.get("laser-left") || obstacle.sprite == game.animations.get("laser-right")) {
 					game.sounds.play("laser");
-				} else if (obstacle.sprite == game.images.get("spikes")) {
+				} else if (obstacle.sprite.name.indexOf("spikes") > -1) {
 					game.sounds.play("spikes");
 				}
 			}
