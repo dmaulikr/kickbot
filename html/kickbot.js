@@ -2,7 +2,6 @@ var canvas = document.getElementById("game");
 
 var manifest = {
 	"images": {
-		"spikes": "images/spikes.png",
 		"bg": "images/bg.png",
 		"logo": "images/kickbot-logo.png",
 	},
@@ -57,6 +56,17 @@ var manifest = {
 		"laser-right": {
 			"strip": "images/laser-anim.png",
 			"frames": 12,
+			"msPerFrame": 70,
+			"flip": "horizontal"
+		},
+		"spikes-left": {
+			"strip": "images/spikes.png",
+			"frames": 1,
+			"msPerFrame": 70
+		},
+		"spikes-right": {
+			"strip": "images/spikes.png",
+			"frames": 1,
 			"msPerFrame": 70,
 			"flip": "horizontal"
 		},
@@ -235,13 +245,6 @@ var score = 0;
 var best = getBest();
 var newBest = false;
 
-function drawFlipped(context) {
-	context.save();
-	context.scale(-1, 1);
-	context.drawImage(this.sprite, -this.x - this.sprite.width, this.y);
-	context.restore();
-}
-
 function jumpSound() {
 	var i = Math.random() * jumpSounds.length |0;
 	game.sounds.play(jumpSounds[i]);
@@ -323,10 +326,9 @@ function makeWall(y) {
 				obstacle = new Splat.AnimatedEntity(x + 29, y + 10, 8, 211, img, -29, -10);
 			}
 		} else {
-			img = game.images.get("spikes");
+			img = game.animations.get(onRight ? "spikes-right" : "spikes-left");
 			obstacle = new Splat.AnimatedEntity(x, y, img.width, img.height, img, 0, 0);
 			if (onRight) {
-				obstacle.draw = drawFlipped;
 				obstacle.x = canvas.width - wallImg.width - img.width + 8;
 			}
 		}
