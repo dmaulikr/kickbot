@@ -1,12 +1,13 @@
 {
   "name": "Kick Bot",
-  "description": "Kick Bot – a game that will really kick your bot!
-This game is all about quick reflexes and fast action. Maneuver through a procedurally-generated terrain of obstacles like spikes and laser beams. One wrong move and you’re a heap of metal. ",
+  "description": "Kick Bot will really kick your bot! Maneuver through spikes and laser beams. One wrong move and you’re a heap of metal.",
   "version": "1.0",
   "app": {
     "background": {
       "scripts": ["background.js"]
     }
-  }//,
-   //"icons": { "16": "calculator-16.png", "128": "calculator-128.png" }
+  },
+   "icons": { "16": "images/kickbot-icon-16.png", 
+              "128": "images/kickbot-icon-128.png" 
+            }
 }
