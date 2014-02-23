@@ -207,15 +207,8 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	anim.draw(context, (canvas.width / 2) - (anim.width / 2), (canvas.height / 2) - (anim.height / 2));
 }));
 
-function getCookie(name) {
-	var value = "; " + document.cookie;
-	var parts = value.split("; " + name + "=");
-	if (parts.length == 2) {
-		return parts.pop().split(";").shift();
-	}
-}
 function getBest() {
-	var b = parseInt(getCookie("bestScore"));
+	var b = parseInt(Splat.cookie.get("bestScore"));
 	if (isNaN(b) || b < 0 || !b) {
 		b = 0;
 	}
@@ -224,10 +217,7 @@ function getBest() {
 
 function setBest(b) {
 	best = b;
-	var expire = new Date();
-	expire.setTime(expire.getTime() + 1000 * 60 * 60 * 24 * 365);
-	var cookie = "bestScore=" + best + "; expires=" + expire.toUTCString() + ";";
-	document.cookie = cookie;
+	Splat.cookie.set("bestScore", best);
 }
 
 var player;
