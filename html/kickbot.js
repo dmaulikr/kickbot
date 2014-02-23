@@ -365,10 +365,6 @@ function populateWallsDown(scene) {
 	obstacles = [];
 }
 
-function oscillate(current, period, height) {
-	return Math.sin(current / period * Math.PI) * height;
-}
-
 function centerText(context, text, offsetX, offsetY) {
 	var w = context.measureText(text).width;
 	var x = offsetX + (canvas.width / 2) - (w / 2) |0;
@@ -467,7 +463,7 @@ function(elapsedMillis) {
 		lju = 0;
 	}
 	if (lju > 0) {
-		player.vx = oscillate(lju + 100, 200, 1);
+		player.vx = Splat.math.oscillate(lju + 100, 200);
 	}
 
 	var rju = this.timer("right jump up");
@@ -476,7 +472,7 @@ function(elapsedMillis) {
 		rju = 0;
 	}
 	if (rju > 0) {
-		player.vx = -oscillate(rju + 100, 200, 1);
+		player.vx = -Splat.math.oscillate(rju + 100, 200);
 	}
 
 	player.move(elapsedMillis);
@@ -611,7 +607,7 @@ function(context) {
 		flashTime = 0;
 	}
 	if (flashTime > 0) {
-		var opacity = oscillate(this.timer("flash"), flashLen, 1);
+		var opacity = Splat.math.oscillate(this.timer("flash"), flashLen);
 		context.fillStyle = "rgba(255, 255, 255, " + opacity + ")";
 		context.fillRect(this.camera.x, this.camera.y, canvas.width, canvas.height);
 	}
