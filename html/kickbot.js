@@ -275,6 +275,29 @@ function getLastRightWall(y) {
 	}
 }
 
+function makeObstacle(onRight, y, getWindowImages) {
+	var img;
+	var obstacle;
+
+	var wallImg = game.animations.get("wall-1-left");
+	var x = wallImg.width - 8;
+	if (Math.random() > 0.5) {
+		img = game.animations.get(onRight ? "laser-right" : "laser-left");
+		if (onRight) {
+			obstacle = new Splat.AnimatedEntity(canvas.width - wallImg.width - img.width + 8 + 4, y + 10, 8, 211, img, -4, -10);
+		} else {
+			obstacle = new Splat.AnimatedEntity(x + 29, y + 10, 8, 211, img, -29, -10);
+		}
+	} else {
+		img = game.animations.get(onRight ? "spikes-right" : "spikes-left");
+		obstacle = new Splat.AnimatedEntity(x, y, img.width, img.height, img, 0, 0);
+		if (onRight) {
+			obstacle.x = canvas.width - wallImg.width - img.width + 8;
+		}
+	}
+	obstacles.push(obstacle);
+}
+
 var lastObstacle = false;
 var pita = 0;
 function makeWall(y) {
@@ -302,27 +325,7 @@ function makeWall(y) {
 		var onRight = Math.random() > 0.5;
 		chooseWall(y, onRight ? getWindowImages(true) : wallImages, true);
 		chooseWall(y, onRight ? wallImages : getWindowImages(false), false);
-
-		var img;
-		var obstacle;
-
-		var wallImg = game.animations.get("wall-1-left");
-		var x = wallImg.width - 8;
-		if (Math.random() > 0.5) {
-			img = game.animations.get(onRight ? "laser-right" : "laser-left");
-			if (onRight) {
-				obstacle = new Splat.AnimatedEntity(canvas.width - wallImg.width - img.width + 8 + 4, y + 10, 8, 211, img, -4, -10);
-			} else {
-				obstacle = new Splat.AnimatedEntity(x + 29, y + 10, 8, 211, img, -29, -10);
-			}
-		} else {
-			img = game.animations.get(onRight ? "spikes-right" : "spikes-left");
-			obstacle = new Splat.AnimatedEntity(x, y, img.width, img.height, img, 0, 0);
-			if (onRight) {
-				obstacle.x = canvas.width - wallImg.width - img.width + 8;
-			}
-		}
-		obstacles.push(obstacle);
+		makeObstacle(onRight, y, getWindowImages);
 	} else {
 		chooseWall(y, getWindowImages(true), true);
 		chooseWall(y, getWindowImages(false), false);
@@ -374,6 +377,32 @@ function centerText(context, text, offsetX, offsetY) {
 
 function anythingWasPressed() {
 	return game.keyboard.isPressed("left") || game.keyboard.isPressed("right") || game.mouse.buttons[0];
+}
+
+function drawScoreScreen(context, scene) {
+	var ftb = scene.timer("fade to black");
+	scene.camera.drawAbsolute(context, function() {
+		var opacity = Math.min(ftb / 300, 0.7);
+		context.fillStyle = "rgba(0, 0, 0, " + opacity + ")";
+		context.fillRect(0, 0, canvas.width, canvas.height);
+
+		context.fillStyle = "#ffffff";
+		context.font = "50px pixelade";
+		centerText(context, "SCORE", 0, 300);
+		context.font = "100px pixelade";
+		centerText(context, score, 0, 400);
+
+		context.font = "50px pixelade";
+		if (newBest) {
+			context.fillStyle = "#be4682";
+			centerText(context, "NEW BEST!", 0, 600);
+		} else {
+			centerText(context, "BEST", 0, 600);
+		}
+
+		context.font = "100px pixelade";
+		centerText(context, best, 0, 700);
+	});
 }
 
 game.scenes.add("main", new Splat.Scene(canvas, function() {
@@ -611,29 +640,7 @@ function(context) {
 
 	var ftb = this.timer("fade to black");
 	if (ftb > 0) {
-
-		this.camera.drawAbsolute(context, function() {
-			var opacity = Math.min(ftb / 300, 0.7);
-			context.fillStyle = "rgba(0, 0, 0, " + opacity + ")";
-			context.fillRect(0, 0, canvas.width, canvas.height);
-
-			context.fillStyle = "#ffffff";
-			context.font = "50px pixelade";
-			centerText(context, "SCORE", 0, 300);
-			context.font = "100px pixelade";
-			centerText(context, score, 0, 400);
-
-			context.font = "50px pixelade";
-			if (newBest) {
-				context.fillStyle = "#be4682";
-				centerText(context, "NEW BEST!", 0, 600);
-			} else {
-				centerText(context, "BEST", 0, 600);
-			}
-
-			context.font = "100px pixelade";
-			centerText(context, best, 0, 700);
-		});
+		drawScoreScreen(context, this);
 		return;
 	}
 
