@@ -432,9 +432,6 @@ function(elapsedMillis) {
 		if (!ftb) {
 			this.startTimer("fade to black");
 		}
-
-		this.camera.vy = 0;
-		return;
 	}
 
 	for (var i = 0; i < walls.length; i++) {
@@ -614,11 +611,12 @@ function(context) {
 
 	var ftb = this.timer("fade to black");
 	if (ftb > 0) {
-		var opacity = ftb / 300;
-		context.fillStyle = "rgba(0, 0, 0, " + opacity + ")";
-		context.fillRect(this.camera.x, this.camera.y, canvas.width, canvas.height);
 
 		this.camera.drawAbsolute(context, function() {
+			var opacity = Math.min(ftb / 300, 0.7);
+			context.fillStyle = "rgba(0, 0, 0, " + opacity + ")";
+			context.fillRect(0, 0, canvas.width, canvas.height);
+
 			context.fillStyle = "#ffffff";
 			context.font = "50px pixelade";
 			centerText(context, "SCORE", 0, 300);
