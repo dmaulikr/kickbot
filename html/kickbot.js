@@ -405,6 +405,21 @@ function drawScoreScreen(context, scene) {
 	});
 }
 
+function drawIntroOverlay(context, scene) {
+	scene.camera.drawAbsolute(context, function() {
+		var logo = game.images.get("logo");
+		context.drawImage(logo, (canvas.width / 2) - (logo.width / 2)|0, 200);
+
+		var isTouch = game.mouse.supportsTouch();
+		var arrow = game.animations.get(isTouch ? "tap-left" : "arrow-left");
+		var x = (canvas.width / 4);
+		arrow.draw(context, x, canvas.height * 3 / 4);
+
+		x = canvas.width - (canvas.width / 4) - arrow.width;
+		game.animations.get(isTouch ? "tap-right" : "arrow-right").draw(context, x, canvas.height * 3 / 4);
+	});
+}
+
 game.scenes.add("main", new Splat.Scene(canvas, function() {
 	walls = [];
 	obstacles = [];
@@ -645,18 +660,7 @@ function(context) {
 	}
 
 	if (waitingToStart) {
-		this.camera.drawAbsolute(context, function() {
-			var logo = game.images.get("logo");
-			context.drawImage(logo, (canvas.width / 2) - (logo.width / 2)|0, 200);
-
-			var isTouch = game.mouse.supportsTouch();
-			var arrow = game.animations.get(isTouch ? "tap-left" : "arrow-left");
-			var x = (canvas.width / 4);
-			arrow.draw(context, x, canvas.height * 3 / 4);
-
-			x = canvas.width - (canvas.width / 4) - arrow.width;
-			game.animations.get(isTouch ? "tap-right" : "arrow-right").draw(context, x, canvas.height * 3 / 4);
-		});
+		drawIntroOverlay(context, this);
 	}
 	this.camera.drawAbsolute(context, function() {
 		context.fillStyle = "#ffffff";
