@@ -657,8 +657,7 @@ function(context) {
 
 	drawFlash(context, this);
 
-	var ftb = this.timer("fade to black");
-	if (ftb > 0) {
+	if (this.timer("fade to black") > 0) {
 		drawScoreScreen(context, this);
 		return;
 	}
