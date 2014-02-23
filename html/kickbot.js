@@ -420,6 +420,20 @@ function drawIntroOverlay(context, scene) {
 	});
 }
 
+function drawFlash(context, scene) {
+	var flashTime = scene.timer("flash");
+	var flashLen = 150;
+	if (flashTime > flashLen) {
+		scene.stopTimer("flash");
+		flashTime = 0;
+	}
+	if (flashTime > 0) {
+		var opacity = Splat.math.oscillate(scene.timer("flash"), flashLen);
+		context.fillStyle = "rgba(255, 255, 255, " + opacity + ")";
+		context.fillRect(scene.camera.x, scene.camera.y, canvas.width, canvas.height);
+	}
+}
+
 game.scenes.add("main", new Splat.Scene(canvas, function() {
 	walls = [];
 	obstacles = [];
@@ -641,17 +655,7 @@ function(context) {
 	}
 	player.draw(context);
 
-	var flashTime = this.timer("flash");
-	var flashLen = 150;
-	if (flashTime > flashLen) {
-		this.stopTimer("flash");
-		flashTime = 0;
-	}
-	if (flashTime > 0) {
-		var opacity = Splat.math.oscillate(this.timer("flash"), flashLen);
-		context.fillStyle = "rgba(255, 255, 255, " + opacity + ")";
-		context.fillRect(this.camera.x, this.camera.y, canvas.width, canvas.height);
-	}
+	drawFlash(context, this);
 
 	var ftb = this.timer("fade to black");
 	if (ftb > 0) {
