@@ -1,7 +1,7 @@
 {
 	"name": "Kick Bot",
 	"description": "Kick Bot will really kick your bot! Maneuver through spikes and laser beams. One wrong move and you’re a heap of metal.",
-	"version": "1.0",
+	"version": "1.1",
 	"app": {
 		"background": {
 			"scripts": ["background.js"]
