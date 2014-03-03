@@ -188,11 +188,11 @@ var manifest = {
 var game = new Splat.Game(canvas, manifest);
 
 game.scenes.add("title", new Splat.Scene(canvas, function() {
-	this.startTimer("running");
-}, function(elapsedMillis) {
-	if (this.timer("running") > 2000) {
+	this.timers.running = new Splat.Timer(null, 2000, function() {
 		game.scenes.switchTo("main");
-	}
+	});
+	this.timers.running.start();
+}, function(elapsedMillis) {
 	game.animations.get("two-scoop").move(elapsedMillis);
 }, function(context) {
 	context.fillStyle = "#93cbcd";
@@ -376,11 +376,11 @@ function centerText(context, text, offsetX, offsetY) {
 }
 
 function anythingWasPressed() {
-	return game.keyboard.isPressed("left") || game.keyboard.isPressed("right") || game.mouse.buttons[0];
+	return game.keyboard.isPressed("left") || game.keyboard.isPressed("right") || game.mouse.isPressed(0);
 }
 
 function drawScoreScreen(context, scene) {
-	var ftb = scene.timer("fade to black");
+	var ftb = scene.timers.fadeToBlack.time;
 	scene.camera.drawAbsolute(context, function() {
 		var opacity = Math.min(ftb / 300, 0.7);
 		context.fillStyle = "rgba(0, 0, 0, " + opacity + ")";
@@ -421,14 +421,11 @@ function drawIntroOverlay(context, scene) {
 }
 
 function drawFlash(context, scene) {
-	var flashTime = scene.timer("flash");
-	var flashLen = 150;
-	if (flashTime > flashLen) {
-		scene.stopTimer("flash");
-		flashTime = 0;
-	}
+	var flashTime = scene.timers.flash.time;
+	var flashLen = scene.timers.flash.expireMillis;
+
 	if (flashTime > 0) {
-		var opacity = Splat.math.oscillate(scene.timer("flash"), flashLen);
+		var opacity = Splat.math.oscillate(flashTime, flashLen);
 		context.fillStyle = "rgba(255, 255, 255, " + opacity + ")";
 		context.fillRect(scene.camera.x, scene.camera.y, canvas.width, canvas.height);
 	}
@@ -447,7 +444,22 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	var playerImg = game.animations.get("player-slide-left");
 	player = new Splat.AnimatedEntity(wallW, canvas.height / 2, 30, 100, playerImg, -35, -13);
 
-	this.clearTimers();
+	this.timers.flash = new Splat.Timer(null, 150, function() {
+		this.reset();
+	});
+	this.timers.fadeToBlack = new Splat.Timer(null, 800, function() {
+		game.scenes.switchTo("main");
+	});
+	this.timers.leftJumpUp = new Splat.Timer(function(elapsedMillis) {
+		player.vx = Splat.math.oscillate(this.time + 100, 200);
+	}, 200, function() {
+		this.reset();
+	});
+	this.timers.rightJumpUp = new Splat.Timer(function(elapsedMillis) {
+		player.vx = -Splat.math.oscillate(this.time + 100, 200);
+	}, 200, function() {
+		this.reset();
+	});
 
 	game.animations.get("arrow-left").reset();
 	game.animations.get("arrow-right").reset();
@@ -483,13 +495,7 @@ function(elapsedMillis) {
 		}
 		dead = true;
 
-		var ftb = this.timer("fade to black");
-		if (ftb > 800) {
-			game.scenes.switchTo("main");
-		}
-		if (!ftb) {
-			this.startTimer("fade to black");
-		}
+		this.timers.fadeToBlack.start();
 	}
 
 	for (var i = 0; i < walls.length; i++) {
@@ -512,24 +518,6 @@ function(elapsedMillis) {
 		player.vy = 0.5;
 	}
 
-	var lju = this.timer("left jump up");
-	if (lju > 200) {
-		this.stopTimer("left jump up");
-		lju = 0;
-	}
-	if (lju > 0) {
-		player.vx = Splat.math.oscillate(lju + 100, 200);
-	}
-
-	var rju = this.timer("right jump up");
-	if (rju > 200) {
-		this.stopTimer("right jump up");
-		rju = 0;
-	}
-	if (rju > 0) {
-		player.vx = -Splat.math.oscillate(rju + 100, 200);
-	}
-
 	player.move(elapsedMillis);
 
 	onWall = undefined;
@@ -539,8 +527,11 @@ function(elapsedMillis) {
 			player.resolveLeftCollisionWith(wall);
 			player.resolveRightCollisionWith(wall);
 			player.resolveTopCollisionWith(wall);
-			this.stopTimer("left jump up");
-			this.stopTimer("right jump up");
+
+			this.timers.leftJumpUp.stop();
+			this.timers.leftJumpUp.reset();
+			this.timers.rightJumpUp.stop();
+			this.timers.rightJumpUp.reset();
 
 			if (player.overlapsVert(wall)) {
 				onWall = wall;
@@ -577,7 +568,7 @@ function(elapsedMillis) {
 			obstacle.counted = true;
 		}
 		if (player.collides(obstacle)) {
-			if (!this.timer("flash")) {
+			if (!this.timers.flash.running) {
 				var explode;
 				if (player.sprite.name.indexOf("left") > -1) {
 					explode = game.animations.get("player-explode-left");
@@ -593,7 +584,7 @@ function(elapsedMillis) {
 					game.sounds.play("spikes");
 				}
 			}
-			this.startTimer("flash");
+			this.timers.flash.start();
 			dead = true;
 			return;
 		}
@@ -604,13 +595,12 @@ function(elapsedMillis) {
 
 		var left = false;
 		var right = false;
-		if (game.mouse.buttons[0]) {
+		if (game.mouse.consumePressed(0)) {
 			if (game.mouse.x < canvas.width / 2) {
 				left = true;
 			} else {
 				right = true;
 			}
-			game.mouse.buttons[0] = false;
 		} else if (game.keyboard.consumePressed("left")) {
 			left = true;
 		} else if (game.keyboard.consumePressed("right")) {
@@ -619,7 +609,7 @@ function(elapsedMillis) {
 
 		if (left) {
 			if (wallIsOnLeft) {
-				this.startTimer("left jump up");
+				this.timers.leftJumpUp.start();
 			} else {
 				player.vx = -1.0;
 			}
@@ -630,7 +620,7 @@ function(elapsedMillis) {
 			if (wallIsOnLeft) {
 				player.vx = 1.0;
 			} else {
-				this.startTimer("right jump up");
+				this.timers.rightJumpUp.start();
 			}
 			player.vy = -1.5;
 			onWall = undefined;
@@ -657,7 +647,7 @@ function(context) {
 
 	drawFlash(context, this);
 
-	if (this.timer("fade to black") > 0) {
+	if (this.timers.fadeToBlack.running) {
 		drawScoreScreen(context, this);
 		return;
 	}
