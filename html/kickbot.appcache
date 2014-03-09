@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# Version 2
+# Version 3
 
 CACHE:
 audio/jump1.wav
@@ -24,6 +24,10 @@ images/player.png
 images/spikes.png
 images/startup.png
 images/tap-icons-sprite.png
+images/touch-icon-ipad-retina.png
+images/touch-icon-ipad.png
+images/touch-icon-iphone-retina.png
+images/touch-icon-iphone.png
 images/two-scoop-pixel-anim.png
 images/wall-grate.png
 images/wall1.png
