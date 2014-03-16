@@ -208,7 +208,7 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 }));
 
 function getBest() {
-	var b = parseInt(Splat.cookie.get("bestScore"));
+	var b = parseInt(Splat.saveData.get("bestScore"));
 	if (isNaN(b) || b < 0 || !b) {
 		b = 0;
 	}
@@ -217,7 +217,7 @@ function getBest() {
 
 function setBest(b) {
 	best = b;
-	Splat.cookie.set("bestScore", best);
+	Splat.saveData.set("bestScore", best);
 }
 
 var player;
