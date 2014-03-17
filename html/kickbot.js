@@ -16,9 +16,14 @@ var manifest = {
 		"point": "audio/point.mp3",
 		"music": "audio/Rolemusic_-_01_-_A_ninja_among_culturachippers-mono-loop.mp3",
 	},
-	"fonts": [
-		"pixelade"
-	],
+	"fonts": {
+		"pixelade": {
+			"embedded-opentype": "pixelade/pixelade-webfont.eot",
+			"woff": "pixelade/pixelade-webfont.woff",
+			"truetype": "pixelade/pixelade-webfont.ttf",
+			"svg": "pixelade/pixelade-webfont.svg#pixeladeregular"
+		}
+	},
 	"animations": {
 		"two-scoop": {
 			"strip": "images/two-scoop-pixel-anim.png",
