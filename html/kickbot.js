@@ -1,4 +1,4 @@
-var canvas = document.getElementById("game");
+var canvas = document.getElementById("canvas");
 
 var manifest = {
 	"images": {
