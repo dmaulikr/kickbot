@@ -1,16 +1,16 @@
 CACHE MANIFEST
-# Version 6
+# Version 7
 
 CACHE:
-audio/jump1.wav
-audio/jump2.wav
-audio/jump3.wav
-audio/jump4.wav
-audio/jump5.wav
-audio/laser.wav
-audio/point.wav
+audio/jump1.mp3
+audio/jump2.mp3
+audio/jump3.mp3
+audio/jump4.mp3
+audio/jump5.mp3
+audio/laser.mp3
+audio/point.mp3
 audio/Rolemusic_-_01_-_A_ninja_among_culturachippers-mono-loop.mp3
-audio/spikes.wav
+audio/spikes.mp3
 images/arrow-key-sprite.png
 images/bg.png
 images/explode.png
