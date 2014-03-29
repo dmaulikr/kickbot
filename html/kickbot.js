@@ -422,6 +422,10 @@ function drawIntroOverlay(context, scene) {
 
 		x = canvas.width - (canvas.width / 4) - arrow.width;
 		game.animations.get(isTouch ? "tap-right" : "arrow-right").draw(context, x, canvas.height * 3 / 4);
+
+		context.fillStyle = "#fff";
+		context.font = "50px pixelade";
+		centerText(context, "MUSIC BY ROLEMUSIC", 0, canvas.height - 90);
 	});
 }
 
