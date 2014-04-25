@@ -6,6 +6,8 @@
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 	<title>Kick Bot</title>
+		<meta description="Kick Bot – a game that will really kick your bot!
+This game is all about quick reflexes and fast action. Maneuver through a procedurally-generated terrain of obstacles like spikes and laser beams. One wrong move and you’re a heap of metal.">
 	<link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
 	<link rel="icon" href="images/favicon.ico" type="image/x-icon">
 
@@ -45,10 +47,112 @@
 			-o-user-select: none;
 			user-select: none;
 		}
+
+
+		/* 1016px */
+		@media all and (max-width: 669px) {
+			.adSmall{ display: none; }
+			.adBig{ display: none; }
+		}
+
+		@media all and (min-width: 670px)  and (max-width: 1015px){
+			.adSmall{ display: block; }
+			.adBig{ display: none; }
+			.adSpot{
+				z-index: 9999;
+				position: absolute;
+				top: 5%;
+				left: 10px;
+				width: 120px;
+				height: 600px;
+				background: rgb(50,50,50);
+			}
+			.adSpot2{
+				z-index: 9999;
+				position: absolute;
+				top: 5%;
+				right: 10px;
+				width: 120px;
+				height: 600px;
+				background: rgb(50,50,50);
+			}
+		}
+
+		@media all and (min-width: 1016px)  {
+			.adSmall{ display: none; }
+			.adBig{ display: block; }
+			.adSpot{
+				z-index: 9999;
+				position: absolute;
+				top: 5%;
+				left: 10px;
+				width: 300px;
+				height: 600px;
+				background: rgb(50,50,50);
+			}
+			.adSpot2{
+				z-index: 9999;
+				position: absolute;
+				top: 5%;
+				right: 10px;
+				width: 300px;
+				height: 600px;
+				background: rgb(50,50,50);
+			}
+		}
+
 	</style>
 </head>
 <body>
-	<canvas id="canvas" width="640" height="1136"></canvas>
+	<canvas id="game" width="640" height="1136"></canvas>
+
+	<div class="adSmall adSpot">
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- addSmall adSpot -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:600px"
+     data-ad-client="ca-pub-5362682106066528"
+     data-ad-slot="3520996299"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+	</div>
+	<div class="adSmall adSpot2">
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- kickbot addBig addSpot -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:300px;height:600px"
+     data-ad-client="ca-pub-5362682106066528"
+     data-ad-slot="6474462697"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+	</div>
+
+	<div class="adBig adSpot">
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- kickbot addSmall addSpot2 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:120px;height:600px"
+     data-ad-client="ca-pub-5362682106066528"
+     data-ad-slot="4997729493"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+	</div>
+	<div class="adBig adSpot2">
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- kickbot addBig addSpot2 -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:300px;height:600px"
+     data-ad-client="ca-pub-5362682106066528"
+     data-ad-slot="7951195890"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+	</div>
+
+
 	<script type="text/javascript" src="splat/splat.js"></script>
 	<script type="text/javascript" src="kickbot.js"></script>
 	<script>
