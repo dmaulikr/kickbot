@@ -322,6 +322,9 @@ function makeWall(y) {
 	var lastRightWallIsWindow = isWindow(getLastRightWall(y));
 
 	function getWindowImages(isLeft) {
+		// FIXME: temporary band-aid until we figure out how to stop windows from being generated on the first row of walls once the game starts
+		// the random window generation causes problems with the replay because the existing walls are not in the replay, and they affect the RNG during the replay
+		return wallImages;
 		if ((isLeft && lastLeftWallIsWindow) || (!isLeft && lastRightWallIsWindow)) {
 			return wallImages;
 		}
@@ -450,6 +453,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	this.camera.y = 0;
 	score = 0;
 	newBest = false;
+	this.replay = undefined;
 
 	var wallW = game.animations.get("wall-1-left").width;
 	var playerImg = game.animations.get("player-slide-left");
@@ -458,7 +462,12 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	this.timers.flash = new Splat.Timer(null, 150, function() {
 		this.reset();
 	});
+	var scene = this;
 	this.timers.fadeToBlack = new Splat.Timer(null, 800, function() {
+		if (scene.recording) {
+			scene.lastReplay = scene.recording;
+			scene.recording = undefined;
+		}
 		game.scenes.switchTo("main");
 	});
 	this.timers.leftJumpUp = new Splat.Timer(function(elapsedMillis) {
@@ -472,6 +481,14 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		this.reset();
 	});
 
+	this.adjustTimestamp = function(elapsedMillis) {
+		if (scene.replay) {
+			return scene.replay.shift() || elapsedMillis;
+		} else {
+			return elapsedMillis;
+		}
+	};
+
 	game.animations.get("arrow-left").reset();
 	game.animations.get("arrow-right").reset();
 	game.animations.get("arrow-right").frame = 1;
@@ -483,18 +500,64 @@ function(elapsedMillis) {
 	if (waitingToStart) {
 		this.camera.vy = 0.6;
 		player.vy = this.camera.vy;
+		var wallH = game.animations.get("wall-1-left").height;
+		if (game.keyboard.consumePressed("r") && this.lastReplay) {
+			console.log("replay");
+
+			waitingToStart = false;
+			this.camera.vy = -0.6;
+			lastObstacle = false;
+			pita = 0;
+
+			this.replay = this.lastReplay.slice();
+
+			// FIXME: don't actually start until player is at same Y within a wall, otherwise everything will be off
+			player.y = Math.floor(player.y);
+			var actualOffset = player.y % wallH;
+			var desiredOffset = this.replay.shift(); // remove y offset
+			var adjustment = desiredOffset - actualOffset;
+			if (adjustment > 0) {
+				adjustment -= wallH;
+			}
+			// if (adjustment > wallH / 2) {
+			// 	adjustment -= wallH;
+			// } else if (adjustment < -wallH / 2) {
+			// 	adjustment += wallH;
+			// }
+			if (adjustment < -wallH / 2) {
+				adjustment += wallH;
+			}
+			player.y += adjustment;
+			this.camera.y += adjustment;
+			populateWallsDown(this);
+			console.log("adjusted by", adjustment);
+
+			var seed = this.replay.shift();
+			rand = new Splat.math.Random(seed);
+			elapsedMillis = this.replay.shift();
+		}
 		if (anythingWasPressed()) {
 			game.sounds.play("music", true);
 			waitingToStart = false;
 			this.camera.vy = -0.6;
-			rand = new Splat.math.Random();
 			lastObstacle = false;
 			pita = 0;
+
+			player.y = Math.floor(player.y);
+			this.recording = [player.y % wallH];
+
+			var seed = new Date().getTime();
+			this.recording.push(seed);
+			rand = new Splat.math.Random(seed);
 		}
 		game.animations.get("arrow-left").move(elapsedMillis);
 		game.animations.get("arrow-right").move(elapsedMillis);
 		game.animations.get("tap-left").move(elapsedMillis);
 		game.animations.get("tap-right").move(elapsedMillis);
+	}
+
+	if (this.recording) {
+		this.recording.push(elapsedMillis);
 	}
 
 	bgY -= this.camera.vy / 1.5 * elapsedMillis;
@@ -555,6 +618,17 @@ function(elapsedMillis) {
 	if (dead) {
 		return;
 	}
+
+	var isOnWall = onWall ? true : false;
+	if (this.replay) {
+		var oow = this.replay.shift();
+		if (oow !== isOnWall) {
+			console.log("onWall", isOnWall, oow);
+		}
+	} else if (this.recording) {
+		this.recording.push(isOnWall);
+	}
+
 	if (onWall) {
 		var wallIsOnLeft = player.x > onWall.x;
 		if (wallIsOnLeft) {
@@ -605,8 +679,6 @@ function(elapsedMillis) {
 	}
 
 	if (onWall) {
-		var wallIsOnLeft = player.x > onWall.x;
-
 		var left = false;
 		var right = false;
 		if (game.mouse.consumePressed(0)) {
@@ -620,7 +692,23 @@ function(elapsedMillis) {
 		} else if (game.keyboard.consumePressed("right")) {
 			right = true;
 		}
+		if (this.replay) {
+			left = this.replay.shift();
+			if (typeof left === "number") {
+				console.log("left", left);
+				throw "got number, expected left";
+			}
+			right = this.replay.shift();
+			if (typeof right === "number") {
+				console.log("right", right);
+				throw "got number, expected right";
+			}
+		} else if (this.recording) {
+			this.recording.push(left);
+			this.recording.push(right);
+		}
 
+		var wallIsOnLeft = player.x > onWall.x;
 		if (left) {
 			if (wallIsOnLeft) {
 				this.timers.leftJumpUp.start();
