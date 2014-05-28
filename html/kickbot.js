@@ -240,13 +240,15 @@ var score = 0;
 var best = getBest();
 var newBest = false;
 
+var rand = new Splat.math.Random();
+
 function jumpSound() {
 	var i = Math.random() * jumpSounds.length |0;
 	game.sounds.play(jumpSounds[i]);
 }
 
 function chooseWall(y, possibleWalls, isLeft) {
-	var i = Math.random() * possibleWalls.length |0;
+	var i = rand.random() * possibleWalls.length |0;
 	var name = isLeft ? "-left" : "-right";
 	var anim = game.animations.get(possibleWalls[i] + name);
 	var x = 0;
@@ -286,7 +288,7 @@ function makeObstacle(onRight, y, getWindowImages) {
 
 	var wallImg = game.animations.get("wall-1-left");
 	var x = wallImg.width - 8;
-	if (Math.random() > 0.5) {
+	if (rand.random() > 0.5) {
 		img = game.animations.get(onRight ? "laser-right" : "laser-left");
 		if (onRight) {
 			obstacle = new Splat.AnimatedEntity(canvas.width - wallImg.width - img.width + 8 + 4, y + 10, 8, 211, img, -4, -10);
@@ -323,11 +325,11 @@ function makeWall(y) {
 		if ((isLeft && lastLeftWallIsWindow) || (!isLeft && lastRightWallIsWindow)) {
 			return wallImages;
 		}
-		return Math.random() > 0.9 ? windowImages : wallImages;
+		return rand.random() > 0.9 ? windowImages : wallImages;
 	}
 
 	if (hasObstacle) {
-		var onRight = Math.random() > 0.5;
+		var onRight = rand.random() > 0.5;
 		chooseWall(y, onRight ? getWindowImages(true) : wallImages, true);
 		chooseWall(y, onRight ? wallImages : getWindowImages(false), false);
 		makeObstacle(onRight, y, getWindowImages);
@@ -485,6 +487,9 @@ function(elapsedMillis) {
 			game.sounds.play("music", true);
 			waitingToStart = false;
 			this.camera.vy = -0.6;
+			rand = new Splat.math.Random();
+			lastObstacle = false;
+			pita = 0;
 		}
 		game.animations.get("arrow-left").move(elapsedMillis);
 		game.animations.get("arrow-right").move(elapsedMillis);
