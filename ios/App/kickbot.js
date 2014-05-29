@@ -191,7 +191,7 @@ var manifest = {
 };
 
 var game = new Splat.Game(canvas, manifest);
-var adBanner = new Ejecta.AdBanner();
+//var adBanner = new Ejecta.AdBanner();
 
 game.scenes.add("title", new Splat.Scene(canvas, function() {
 	this.timers.running = new Splat.Timer(null, 2000, function() {
@@ -478,7 +478,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	game.animations.get("tap-right").reset();
 	game.animations.get("tap-right").frame = 1;
 
-	adBanner.show();
+	//adBanner.show();
 },
 function(elapsedMillis) {
 	if (waitingToStart) {
@@ -489,7 +489,7 @@ function(elapsedMillis) {
 			waitingToStart = false;
 			this.camera.vy = -0.6;
 
-			adBanner.hide();
+			//adBanner.hide();
 		}
 		game.animations.get("arrow-left").move(elapsedMillis);
 		game.animations.get("arrow-right").move(elapsedMillis);

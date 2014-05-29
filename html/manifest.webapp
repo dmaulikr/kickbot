@@ -1,0 +1,21 @@
+{
+  "name": "Kick Bot",
+  "description": "Kick Bot will really kick your bot! Maneuver through spikes and laser beams. One wrong move and you’re a heap of metal.",
+  "launch_path": "/index.html",
+  "version": "1.1",
+  
+  "icons": {
+    "16": "kickbot/images/kickbot-icon-16.png",
+    "32": "kickbot/images/kickbot-icon-32.png",
+    "60": "kickbot/images/kickbot-icon-60.png",
+    "90": "kickbot/images/kickbot-icon-90.png",
+    "120": "kickbot/images/kickbot-icon-120.png",
+    "128": "kickbot/images/kickbot-icon-128.png",
+    "256": "kickbot/images/kickbot-icon-256.png"
+  },
+  "developer": {
+    "name": "Two Scoop Games",
+    "url": "http://twoscoopgames.com/"
+  },
+  "default_locale": "en"
+}
