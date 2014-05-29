@@ -501,9 +501,7 @@ function(elapsedMillis) {
 		this.camera.vy = 0.6;
 		player.vy = this.camera.vy;
 		var wallH = game.animations.get("wall-1-left").height;
-		if (game.keyboard.consumePressed("r") && this.lastReplay) {
-			console.log("replay");
-
+		if (game.keyboard.consumePressed("r") && this.lastReplay && walls.length > 0) {
 			waitingToStart = false;
 			this.camera.vy = -0.6;
 			lastObstacle = false;
@@ -511,26 +509,15 @@ function(elapsedMillis) {
 
 			this.replay = this.lastReplay.slice();
 
-			// FIXME: don't actually start until player is at same Y within a wall, otherwise everything will be off
 			player.y = Math.floor(player.y);
-			var actualOffset = player.y % wallH;
+			var minWall = walls.reduce(function(a, b) {
+				return Math.min(a.y, b.y) || b.y;
+			});
+			var actualOffset = player.y - minWall;
 			var desiredOffset = this.replay.shift(); // remove y offset
 			var adjustment = desiredOffset - actualOffset;
-			if (adjustment > 0) {
-				adjustment -= wallH;
-			}
-			// if (adjustment > wallH / 2) {
-			// 	adjustment -= wallH;
-			// } else if (adjustment < -wallH / 2) {
-			// 	adjustment += wallH;
-			// }
-			if (adjustment < -wallH / 2) {
-				adjustment += wallH;
-			}
 			player.y += adjustment;
 			this.camera.y += adjustment;
-			populateWallsDown(this);
-			console.log("adjusted by", adjustment);
 
 			var seed = this.replay.shift();
 			rand = new Splat.math.Random(seed);
@@ -544,7 +531,10 @@ function(elapsedMillis) {
 			pita = 0;
 
 			player.y = Math.floor(player.y);
-			this.recording = [player.y % wallH];
+			var minWall = walls.reduce(function(a, b) {
+				return Math.min(a.y, b.y) || b.y;
+			});
+			this.recording = [player.y - minWall];
 
 			var seed = new Date().getTime();
 			this.recording.push(seed);
