@@ -609,16 +609,6 @@ function(elapsedMillis) {
 		return;
 	}
 
-	var isOnWall = onWall ? true : false;
-	if (this.replay) {
-		var oow = this.replay.shift();
-		if (oow !== isOnWall) {
-			console.log("onWall", isOnWall, oow);
-		}
-	} else if (this.recording) {
-		this.recording.push(isOnWall);
-	}
-
 	if (onWall) {
 		var wallIsOnLeft = player.x > onWall.x;
 		if (wallIsOnLeft) {
@@ -684,15 +674,7 @@ function(elapsedMillis) {
 		}
 		if (this.replay) {
 			left = this.replay.shift();
-			if (typeof left === "number") {
-				console.log("left", left);
-				throw "got number, expected left";
-			}
 			right = this.replay.shift();
-			if (typeof right === "number") {
-				console.log("right", right);
-				throw "got number, expected right";
-			}
 		} else if (this.recording) {
 			this.recording.push(left);
 			this.recording.push(right);
