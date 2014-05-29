@@ -86,6 +86,17 @@ var manifest = {
 			"msPerFrame": 70,
 			"flip": "horizontal"
 		},
+		"ghost-left": {
+			"strip": "images/ghost.png",
+			"frames": 1,
+			"msPerFrame": 70
+		},
+		"ghost-right": {
+			"strip": "images/ghost.png",
+			"frames": 1,
+			"msPerFrame": 70,
+			"flip": "horizontal"
+		},
 		"wall-1-left": {
 			"strip": "images/wall1.png",
 			"frames": 1,
@@ -127,6 +138,30 @@ var manifest = {
 		},
 		"player-explode-right": {
 			"strip": "images/explode.png",
+			"frames": 8,
+			"msPerFrame": 70,
+			"repeatAt": 7,
+			"flip": "horizontal"
+		},
+		"ghost-slide-left": {
+			"strip": "images/ghost-slide-anim.png",
+			"frames": 8,
+			"msPerFrame": 100
+		},
+		"ghost-slide-right": {
+			"strip": "images/ghost-slide-anim.png",
+			"frames": 8,
+			"msPerFrame": 100,
+			"flip": "horizontal"
+		},
+		"ghost-explode-left": {
+			"strip": "images/ghost-explode.png",
+			"frames": 8,
+			"msPerFrame": 70,
+			"repeatAt": 7
+		},
+		"ghost-explode-right": {
+			"strip": "images/ghost-explode.png",
 			"frames": 8,
 			"msPerFrame": 70,
 			"repeatAt": 7,
