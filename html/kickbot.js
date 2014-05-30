@@ -298,7 +298,7 @@ function isWindow(entity) {
 	if (!entity) {
 		return false;
 	}
-	return entity.sprite.name.indexOf("window") > -1;
+	return entity.sprite.name.indexOf("window") > -1 || entity.cantHaveWindowNearby;
 }
 
 function wallIsBelowScreen(y) {
@@ -357,9 +357,6 @@ function makeWall(y) {
 	var lastRightWallIsWindow = isWindow(getLastRightWall(y));
 
 	function getWindowImages(isLeft) {
-		// FIXME: temporary band-aid until we figure out how to stop windows from being generated on the first row of walls once the game starts
-		// the random window generation causes problems with the replay because the existing walls are not in the replay, and they affect the RNG during the replay
-		return wallImages;
 		if ((isLeft && lastLeftWallIsWindow) || (!isLeft && lastRightWallIsWindow)) {
 			return wallImages;
 		}
@@ -541,6 +538,8 @@ function(elapsedMillis) {
 			this.camera.vy = -0.6;
 			lastObstacle = false;
 			pita = 0;
+			walls[0].cantHaveWindowNearby = true;
+			walls[1].cantHaveWindowNearby = true;
 
 			this.replay = this.lastReplay.slice();
 
@@ -564,6 +563,8 @@ function(elapsedMillis) {
 			this.camera.vy = -0.6;
 			lastObstacle = false;
 			pita = 0;
+			walls[0].cantHaveWindowNearby = true;
+			walls[1].cantHaveWindowNearby = true;
 
 			player.y = Math.floor(player.y);
 			var minWall = walls.reduce(function(a, b) {
