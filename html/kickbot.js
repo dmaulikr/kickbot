@@ -275,15 +275,69 @@ var score = 0;
 var best = getBest();
 var newBest = false;
 
-var rand = new Splat.math.Random();
+
+function Inputs(captureFrameDataFunc) {
+	this.captureFrameData = captureFrameDataFunc;
+	this.data = [];
+	this.rand = new Splat.math.Random();
+	this.recording = false;
+	this.playing = false;
+}
+Inputs.prototype.record = function(elapsedMillis, initialData) {
+	this.recording = true;
+	var seed = new Date().getTime();
+	this.rand = new Splat.math.Random(seed);
+	this.data = [];
+	this.data.push(seed);
+
+	this.nextFrame(elapsedMillis);
+	for (var key in initialData) {
+		if (initialData.hasOwnProperty(key)) {
+			this.currentFrame[key] = initialData[key];
+		}
+	}
+};
+Inputs.prototype.replay = function() {
+	this.playing = true;
+	var seed = this.data[0];
+	this.rand = new Splat.math.Random(seed);
+	this.frameIndex = 1;
+	this.currentFrame = this.data[1];
+};
+Inputs.prototype.stop = function() {
+	this.playing = false;
+	this.recording = false;
+};
+Inputs.prototype.get = function(key) {
+	return this.currentFrame[key];
+};
+Inputs.prototype.random = function() {
+	return this.rand.random();
+};
+Inputs.prototype.nextFrame = function(elapsedMillis) {
+	if (this.playing) {
+		this.frameIndex++;
+		this.currentFrame = this.data[this.frameIndex];
+		return;
+	}
+	this.currentFrame = {};
+	if (this.recording) {
+		this.currentFrame = this.captureFrameData();
+	}
+	this.currentFrame["elapsedMillis"] = elapsedMillis;
+	if (this.recording) {
+		this.data.push(this.currentFrame);
+	}
+};
+
 
 function jumpSound() {
 	var i = Math.random() * jumpSounds.length |0;
 	game.sounds.play(jumpSounds[i]);
 }
 
-function chooseWall(y, possibleWalls, isLeft) {
-	var i = rand.random() * possibleWalls.length |0;
+function chooseWall(scene, y, possibleWalls, isLeft) {
+	var i = scene.recording.random() * possibleWalls.length |0;
 	var name = isLeft ? "-left" : "-right";
 	var anim = game.animations.get(possibleWalls[i] + name);
 	var x = 0;
@@ -317,13 +371,13 @@ function getLastRightWall(y) {
 	}
 }
 
-function makeObstacle(onRight, y, getWindowImages) {
+function makeObstacle(scene, onRight, y, getWindowImages) {
 	var img;
 	var obstacle;
 
 	var wallImg = game.animations.get("wall-1-left");
 	var x = wallImg.width - 8;
-	if (rand.random() > 0.5) {
+	if (scene.recording.random() > 0.5) {
 		img = game.animations.get(onRight ? "laser-right" : "laser-left");
 		if (onRight) {
 			obstacle = new Splat.AnimatedEntity(canvas.width - wallImg.width - img.width + 8 + 4, y + 10, 8, 211, img, -4, -10);
@@ -342,7 +396,7 @@ function makeObstacle(onRight, y, getWindowImages) {
 
 var lastObstacle = false;
 var pita = 0;
-function makeWall(y) {
+function makeWall(scene, y) {
 	var hasObstacle = !lastObstacle;
 	if (!hasObstacle) {
 		pita++;
@@ -360,17 +414,17 @@ function makeWall(y) {
 		if ((isLeft && lastLeftWallIsWindow) || (!isLeft && lastRightWallIsWindow)) {
 			return wallImages;
 		}
-		return rand.random() > 0.9 ? windowImages : wallImages;
+		return scene.recording.random() > 0.9 ? windowImages : wallImages;
 	}
 
 	if (hasObstacle) {
-		var onRight = rand.random() > 0.5;
-		chooseWall(y, onRight ? getWindowImages(true) : wallImages, true);
-		chooseWall(y, onRight ? wallImages : getWindowImages(false), false);
-		makeObstacle(onRight, y, getWindowImages);
+		var onRight = scene.recording.random() > 0.5;
+		chooseWall(scene, y, onRight ? getWindowImages(true) : wallImages, true);
+		chooseWall(scene, y, onRight ? wallImages : getWindowImages(false), false);
+		makeObstacle(scene, onRight, y, getWindowImages);
 	} else {
-		chooseWall(y, getWindowImages(true), true);
-		chooseWall(y, getWindowImages(false), false);
+		chooseWall(scene, y, getWindowImages(true), true);
+		chooseWall(scene, y, getWindowImages(false), false);
 	}
 }
 
@@ -378,11 +432,11 @@ function populateWallsUp(scene) {
 	var wallH = game.animations.get("wall-1-left").height;
 	var first = false;
 	if (walls.length == 0) {
-		makeWall(scene.camera.y + scene.camera.height - wallH);
+		makeWall(scene, scene.camera.y + scene.camera.height - wallH);
 		first = true;
 	}
 	while (walls[walls.length - 1].y + walls[walls.length - 1].height > scene.camera.y) {
-		makeWall(walls[walls.length - 1].y - wallH);
+		makeWall(scene, walls[walls.length - 1].y - wallH);
 	}
 	if (first) {
 		obstacles = [];
@@ -397,10 +451,10 @@ function populateWallsUp(scene) {
 function populateWallsDown(scene) {
 	var wallH = game.animations.get("wall-1-left").height;
 	if (walls.length == 0) {
-		makeWall(scene.camera.y);
+		makeWall(scene, scene.camera.y);
 	}
 	while (walls[0].y < scene.camera.y + scene.camera.height) {
-		makeWall(walls[0].y + wallH);
+		makeWall(scene, walls[0].y + wallH);
 		walls.unshift(walls.pop());
 		walls.unshift(walls.pop());
 	}
@@ -485,7 +539,6 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	this.camera.y = 0;
 	score = 0;
 	newBest = false;
-	this.replay = undefined;
 
 	var wallW = game.animations.get("wall-1-left").width;
 	var playerImg = game.animations.get("player-slide-left");
@@ -496,10 +549,7 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	});
 	var scene = this;
 	this.timers.fadeToBlack = new Splat.Timer(null, 800, function() {
-		if (scene.recording) {
-			scene.lastReplay = scene.recording;
-			scene.recording = undefined;
-		}
+		scene.recording.stop();
 		game.scenes.switchTo("main");
 	});
 	this.timers.leftJumpUp = new Splat.Timer(function(elapsedMillis) {
@@ -514,12 +564,31 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	});
 
 	this.adjustTimestamp = function(elapsedMillis) {
-		if (scene.replay) {
-			return scene.replay.shift() || elapsedMillis;
-		} else {
-			return elapsedMillis;
-		}
+		scene.recording.nextFrame(elapsedMillis);
+		return scene.recording.get("elapsedMillis");
 	};
+
+	if (!this.recording) {
+		this.recording = new Inputs(function() {
+			var left = false;
+			var right = false;
+			if (game.mouse.consumePressed(0)) {
+				if (game.mouse.x < canvas.width / 2) {
+					left = true;
+				} else {
+					right = true;
+				}
+			} else if (game.keyboard.consumePressed("left")) {
+				left = true;
+			} else if (game.keyboard.consumePressed("right")) {
+				right = true;
+			}
+			return {
+				left: left,
+				right: right
+			};
+		});
+	}
 
 	game.animations.get("arrow-left").reset();
 	game.animations.get("arrow-right").reset();
@@ -533,7 +602,7 @@ function(elapsedMillis) {
 		this.camera.vy = 0.6;
 		player.vy = this.camera.vy;
 		var wallH = game.animations.get("wall-1-left").height;
-		if (game.keyboard.consumePressed("r") && this.lastReplay && walls.length > 0) {
+		if (game.keyboard.consumePressed("r") && this.recording && walls.length > 0) {
 			waitingToStart = false;
 			this.camera.vy = -0.6;
 			lastObstacle = false;
@@ -541,21 +610,20 @@ function(elapsedMillis) {
 			walls[0].cantHaveWindowNearby = true;
 			walls[1].cantHaveWindowNearby = true;
 
-			this.replay = this.lastReplay.slice();
+			this.recording.replay();
 
+			console.log("replay");
 			player.y = Math.floor(player.y);
 			var minWall = walls.reduce(function(a, b) {
 				return Math.min(a.y, b.y) || b.y;
 			});
 			var actualOffset = player.y - minWall;
-			var desiredOffset = this.replay.shift(); // remove y offset
+			var desiredOffset = this.recording.get("playerOffsetY");
 			var adjustment = desiredOffset - actualOffset;
 			player.y += adjustment;
 			this.camera.y += adjustment;
 
-			var seed = this.replay.shift();
-			rand = new Splat.math.Random(seed);
-			elapsedMillis = this.replay.shift();
+			elapsedMillis = this.recording.get("elapsedMillis");
 		}
 		if (anythingWasPressed()) {
 			game.sounds.play("music", true);
@@ -570,20 +638,16 @@ function(elapsedMillis) {
 			var minWall = walls.reduce(function(a, b) {
 				return Math.min(a.y, b.y) || b.y;
 			});
-			this.recording = [player.y - minWall];
 
-			var seed = new Date().getTime();
-			this.recording.push(seed);
-			rand = new Splat.math.Random(seed);
+			this.recording.record(elapsedMillis, {
+				playerOffsetY: player.y - minWall
+			});
+			console.log("start");
 		}
 		game.animations.get("arrow-left").move(elapsedMillis);
 		game.animations.get("arrow-right").move(elapsedMillis);
 		game.animations.get("tap-left").move(elapsedMillis);
 		game.animations.get("tap-right").move(elapsedMillis);
-	}
-
-	if (this.recording) {
-		this.recording.push(elapsedMillis);
 	}
 
 	bgY -= this.camera.vy / 1.5 * elapsedMillis;
@@ -693,28 +757,9 @@ function(elapsedMillis) {
 			return;
 		}
 	}
-
 	if (onWall) {
-		var left = false;
-		var right = false;
-		if (game.mouse.consumePressed(0)) {
-			if (game.mouse.x < canvas.width / 2) {
-				left = true;
-			} else {
-				right = true;
-			}
-		} else if (game.keyboard.consumePressed("left")) {
-			left = true;
-		} else if (game.keyboard.consumePressed("right")) {
-			right = true;
-		}
-		if (this.replay) {
-			left = this.replay.shift();
-			right = this.replay.shift();
-		} else if (this.recording) {
-			this.recording.push(left);
-			this.recording.push(right);
-		}
+		var left = this.recording.get("left");
+		var right = this.recording.get("right");
 
 		var wallIsOnLeft = player.x > onWall.x;
 		if (left) {
