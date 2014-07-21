@@ -247,17 +247,21 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 	anim.draw(context, (canvas.width / 2) - (anim.width / 2), (canvas.height / 2) - (anim.height / 2));
 }));
 
+var best = 0;
 function getBest() {
-	var b = parseInt(Splat.saveData.get("bestScore"));
-	if (isNaN(b) || b < 0 || !b) {
-		b = 0;
-	}
-	return b;
+	var b = parseInt(Splat.saveData.get("bestScore", function(err, data) {
+		best = 0;
+		if (err || isNaN(b) || b < 0 || !b) {
+			return;
+		}
+		best = data.bestScore;
+	}));
 }
+getBest();
 
 function setBest(b) {
 	best = b;
-	Splat.saveData.set("bestScore", best);
+	Splat.saveData.set({ "bestScore": best }, function() {});
 }
 
 var player;
@@ -272,7 +276,6 @@ var windowImages = ["window-1", "window-2", "window-3", "window-4", "window-5"];
 var jumpSounds = ["jump1", "jump2", "jump3", "jump4", "jump5"];
 var bgY = 0;
 var score = 0;
-var best = getBest();
 var newBest = false;
 
 
