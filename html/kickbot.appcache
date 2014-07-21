@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# Version 11
+# Version 12
 
 CACHE:
 audio/jump1.mp3
@@ -11,6 +11,7 @@ audio/laser.mp3
 audio/point.mp3
 audio/Rolemusic_-_01_-_A_ninja_among_culturachippers-mono-loop.mp3
 audio/spikes.mp3
+game.js
 images/arrow-key-sprite.png
 images/bg.png
 images/explode.png
@@ -36,7 +37,6 @@ images/window-robot-2f.png
 images/window-scientist1.png
 images/window-scientist2.png
 images/window-scientist3.png
-kickbot.js
 pixelade/pixelade-webfont.eot
 pixelade/pixelade-webfont.svg
 pixelade/pixelade-webfont.ttf
