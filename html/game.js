@@ -616,16 +616,25 @@ function(elapsedMillis) {
 			this.recording.replay();
 
 			console.log("replay");
+
 			player.y = Math.floor(player.y);
+			this.camera.y = Math.floor(this.camera.y);
+
 			var minWall = walls.reduce(function(a, b) {
 				return Math.min(a.y, b.y) || b.y;
 			});
+
+			var actualWallOffset = this.camera.y - minWall;
+			var desiredWallOffset = this.recording.get("wallOffset");
+			var wallAdjustment = desiredWallOffset - actualWallOffset;
+			this.camera.y += wallAdjustment;
+
 			var actualOffset = player.y - minWall;
 			var desiredOffset = this.recording.get("playerOffsetY");
 			var adjustment = desiredOffset - actualOffset;
 			player.y += adjustment;
-			this.camera.y += adjustment;
 
+			console.log("playback", minWall, player.y - minWall, this.camera.y - minWall);
 			elapsedMillis = this.recording.get("elapsedMillis");
 		}
 		if (anythingWasPressed()) {
@@ -638,12 +647,16 @@ function(elapsedMillis) {
 			walls[1].cantHaveWindowNearby = true;
 
 			player.y = Math.floor(player.y);
+			this.camera.y = Math.floor(this.camera.y);
+
 			var minWall = walls.reduce(function(a, b) {
 				return Math.min(a.y, b.y) || b.y;
 			});
 
+			console.log("recording", minWall, player.y - minWall, this.camera.y - minWall);
 			this.recording.record(elapsedMillis, {
-				playerOffsetY: player.y - minWall
+				playerOffsetY: player.y - minWall,
+				wallOffset: this.camera.y - minWall
 			});
 			console.log("start");
 		}
