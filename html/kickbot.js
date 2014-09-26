@@ -31,8 +31,8 @@ var manifest = {
 			"msPerFrame": 100,
 			"repeatAt": 15
 		},
-		"arrow-left": {
-			"strip": "images/arrow-key-sprite.png",
+		"controller": {
+			"strip": "images/controller.png",
 			"frames": 2,
 			"msPerFrame": 500
 		},
@@ -415,13 +415,9 @@ function drawIntroOverlay(context, scene) {
 		var logo = game.images.get("logo");
 		context.drawImage(logo, (canvas.width / 2) - (logo.width / 2)|0, 200);
 
-		var isTouch = game.mouse.supportsTouch();
-		var arrow = game.animations.get(isTouch ? "tap-left" : "arrow-left");
-		var x = (canvas.width / 4);
-		arrow.draw(context, x, canvas.height * 3 / 4);
-
-		x = canvas.width - (canvas.width / 4) - arrow.width;
-		game.animations.get(isTouch ? "tap-right" : "arrow-right").draw(context, x, canvas.height * 3 / 4);
+		var controller = game.animations.get("controller");
+		var x = (canvas.width / 2) - (controller.width /2);
+		controller.draw(context, x, canvas.height * 2 / 4);
 
 		context.fillStyle = "#fff";
 		context.font = "50px pixelade";
@@ -470,12 +466,8 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 		this.reset();
 	});
 
-	game.animations.get("arrow-left").reset();
-	game.animations.get("arrow-right").reset();
-	game.animations.get("arrow-right").frame = 1;
-	game.animations.get("tap-left").reset();
-	game.animations.get("tap-right").reset();
-	game.animations.get("tap-right").frame = 1;
+	game.animations.get("controller").reset();
+	
 },
 function(elapsedMillis) {
 	if (waitingToStart) {
@@ -486,10 +478,7 @@ function(elapsedMillis) {
 			waitingToStart = false;
 			this.camera.vy = -0.6;
 		}
-		game.animations.get("arrow-left").move(elapsedMillis);
-		game.animations.get("arrow-right").move(elapsedMillis);
-		game.animations.get("tap-left").move(elapsedMillis);
-		game.animations.get("tap-right").move(elapsedMillis);
+		game.animations.get("controller").move(elapsedMillis);
 	}
 
 	bgY -= this.camera.vy / 1.5 * elapsedMillis;
