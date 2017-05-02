@@ -4,6 +4,11 @@ var manifest = {
 	"images": {
 		"bg": "images/bg.png",
 		"logo": "images/kickbot-logo.png",
+    "sound-off": "images/sound-off-icon.png",
+		"sound-on": "images/sound-on-icon.png",
+    "options-button": "images/options.png",
+    "options-menu": "images/options-menu.png",
+    "options-back": "images/options-back.png"
 	},
 	"sounds": {
 		"jump1": "audio/jump1.mp3",
@@ -192,6 +197,12 @@ var manifest = {
 
 var game = new Splat.Game(canvas, manifest);
 
+
+
+
+
+
+
 game.scenes.add("title", new Splat.Scene(canvas, function() {
 	this.timers.running = new Splat.Timer(null, 2000, function() {
 		game.scenes.switchTo("main");
@@ -227,11 +238,13 @@ function setBest(b) {
 
 var player;
 
+var soundToggle;
 var walls = [];
 var obstacles = [];
 var onWall;
 var dead = false;
 var waitingToStart = true;
+var optionsMenuOpen = false;
 var wallImages = ["wall-1", "wall-2"];
 var windowImages = ["window-1", "window-2", "window-3", "window-4", "window-5"];
 var jumpSounds = ["jump1", "jump2", "jump3", "jump4", "jump5"];
@@ -423,9 +436,43 @@ function drawIntroOverlay(context, scene) {
 		x = canvas.width - (canvas.width / 4) - arrow.width;
 		game.animations.get(isTouch ? "tap-right" : "arrow-right").draw(context, x, canvas.height * 3 / 4);
 
+
+    var optionsButtonImage = game.images.get("options-button");
+    context.drawImage(optionsButtonImage, scene.optionsButtonPositon.x, scene.optionsButtonPositon.y);
+
 		context.fillStyle = "#fff";
 		context.font = "50px pixelade";
 		centerText(context, "MUSIC BY ROLEMUSIC", 0, canvas.height - 90);
+    centerText(context, "3rd anversary edition!", 0, 140);
+	});
+}
+
+function drawOptionsMenu(context, scene) {
+	scene.camera.drawAbsolute(context, function() {
+
+    var optionsMenuImage = game.images.get("options-menu");
+    context.drawImage(optionsMenuImage, (canvas.width / 2) - (optionsMenuImage.width / 2) | 0, 50);
+
+    var optionsBackImage = game.images.get("options-back");
+    context.drawImage(
+      optionsBackImage,
+      scene.optionsBackButtonPositon.x,
+      scene.optionsBackButtonPositon.y
+    );
+
+
+    context.fillStyle = "#fff";
+		context.font = "50px pixelade";
+
+
+
+    centerText(context, "3rd anversary edition!", 0, 120);
+
+    var isTouch = game.mouse.supportsTouch();
+    if(isTouch) {
+      centerText(context, "Your device supports touch", 0, 300);
+    }
+
 	});
 }
 
@@ -441,6 +488,30 @@ function drawFlash(context, scene) {
 }
 
 game.scenes.add("main", new Splat.Scene(canvas, function() {
+
+  this.optionsButtonPositon = {
+    x: (canvas.width / 2) - (230 / 2),
+    y: canvas.height - 73
+  };
+
+  this.clickedOptionsButton = clickedInsideButton(
+    "options-button",
+    this.optionsButtonPositon.x,
+    this.optionsButtonPositon.y
+  );
+
+  this.optionsBackButtonPositon = {
+    x: 90,
+    y: 900
+  };
+
+  this.clickedOptionsBackButton = clickedInsideButton(
+    "options-back",
+    this.optionsBackButtonPositon.x,
+    this.optionsBackButtonPositon.y
+  );
+
+
 	walls = [];
 	obstacles = [];
 	waitingToStart = true;
@@ -476,16 +547,41 @@ game.scenes.add("main", new Splat.Scene(canvas, function() {
 	game.animations.get("tap-left").reset();
 	game.animations.get("tap-right").reset();
 	game.animations.get("tap-right").frame = 1;
+
+
+
+
+
 },
 function(elapsedMillis) {
+//simulation
+
+
 	if (waitingToStart) {
-		this.camera.vy = 0.6;
-		player.vy = this.camera.vy;
-		if (anythingWasPressed()) {
-			game.sounds.play("music", true);
-			waitingToStart = false;
-			this.camera.vy = -0.6;
-		}
+    this.camera.vy = 0.6;
+    player.vy = this.camera.vy;
+    if (anythingWasPressed()) {
+
+
+
+
+      if (waitingToStart && this.clickedOptionsButton){
+        optionsMenuOpen = true;
+      } else if (optionsMenuOpen){
+        console.log("in options menu do nothing");
+        // if(this.clickedOptionsBackButton){
+        //   optionsMenuOpen = false;
+        //   return;
+        // }
+      } else {
+        if (!game.sounds.muted) {
+          game.sounds.play("music", true);
+        }
+        waitingToStart = false;
+        this.camera.vy = -0.6;
+      }
+
+    }
 		game.animations.get("arrow-left").move(elapsedMillis);
 		game.animations.get("arrow-right").move(elapsedMillis);
 		game.animations.get("tap-left").move(elapsedMillis);
@@ -605,11 +701,21 @@ function(elapsedMillis) {
 		var left = false;
 		var right = false;
 		if (game.mouse.consumePressed(0)) {
-			if (game.mouse.x < canvas.width / 2) {
-				left = true;
-			} else {
-				right = true;
-			}
+
+
+      if (waitingToStart && this.clickedOptionsButton){
+        optionsMenuOpen = true;
+      } else if (optionsMenuOpen || this.clickedOptionsBackButton){
+        console.log("in options menu do nothing");
+      } else {
+        if (game.mouse.x < canvas.width / 2) {
+          left = true;
+        } else {
+          right = true;
+        }
+      }
+
+
 		} else if (game.keyboard.consumePressed("left")) {
 			left = true;
 		} else if (game.keyboard.consumePressed("right")) {
@@ -636,14 +742,18 @@ function(elapsedMillis) {
 			jumpSound();
 		}
 	}
+  //soundToggle.move(elapsedMillis);
 },
 function(context) {
+  //render
+
 	this.camera.drawAbsolute(context, function() {
 		var bg = game.images.get("bg");
 		for (var y = bgY - bg.height; y <= canvas.height; y += bg.height)  {
 			y = y |0;
 			context.drawImage(bg, 0, y);
 		}
+
 	});
 
 	for (var i = 0; i < walls.length; i++) {
@@ -661,14 +771,96 @@ function(context) {
 		return;
 	}
 
-	if (waitingToStart) {
+	if (waitingToStart && !optionsMenuOpen) {
 		drawIntroOverlay(context, this);
-	}
+	} else if (waitingToStart && optionsMenuOpen) {
+  	drawOptionsMenu(context, this);
+  }
 	this.camera.drawAbsolute(context, function() {
 		context.fillStyle = "#ffffff";
 		context.font = "100px pixelade";
 		centerText(context, score, 0, 100);
 	});
+
+
+
 }));
 
 game.scenes.switchTo("loading");
+
+
+
+function ToggleButton(x, y, width, height, onxIcon, offIcon, key, onToggle) {
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = height;
+	this.onIcon = onIcon;
+	this.offIcon = offIcon;
+	this.key = key;
+	this.toggled = true;
+	this.onToggle = onToggle;
+}
+ToggleButton.prototype.move = function(elapsedMillis) {
+	if (game.mouse.consumePressed(0, this.x, this.y, this.width, this.height)) {
+		this.toggle();
+	}
+	if (game.keyboard.consumePressed(this.key)) {
+		this.toggle();
+	}
+};
+ToggleButton.prototype.draw = function(context) {
+	var icon = this.offIcon;
+	if (this.toggled) {
+		icon = this.onIcon;
+	}
+	context.drawImage(icon, this.x, this.y);
+};
+ToggleButton.prototype.toggle = function() {
+	if (this.onToggle(!this.toggled) !== false) {
+		this.toggled = !this.toggled;
+	}
+};
+ToggleButton.prototype.attachToRight = function(canvas, xOffset) {
+	var that = this;
+	var adjustX = function() {
+		that.x = canvas.width - that.width - xOffset;
+	};
+	adjustX();
+	window.addEventListener("resize", adjustX);
+};
+
+function drawEntities(context, entities) {
+	entities.sort(function(a, b) {
+		return b.y - a.y;
+	});
+	for (var i in entities) {
+		entities[i].draw(context);
+	}
+}
+
+
+
+
+function isInside(rect1, rect2){
+  if (rect1.x < rect2.x + rect2.width &&
+     rect1.x + (rect1.width || 1) > rect2.x &&
+     rect1.y < rect2.y + rect2.height &&
+     (rect1.height || 1) + rect1.y > rect2.y) {
+      return true;
+  }
+}
+
+function clickedInsideButton(image, x, y) {
+  var mousePosition = {x: game.mouse.x, y: game.mouse.y};
+  //console.log(mousePosition);
+  var buttonImage = game.images.get(image);
+  var optionsButton = {
+      x: x,
+      y: y,
+      width: buttonImage.width,
+      height: buttonImage.height
+  };
+  //console.log(optionsButton);
+  return isInside(mousePosition, optionsButton);
+}
