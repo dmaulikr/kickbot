@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "Kick Bot",
+    "description": "The title of the application, displayed in the web store."
+  },
+  "appDesc": {
+    "message": "Kick Bot will really kick your bot! Maneuver through spikes and laser beams. One wrong move and you’re a heap of metal.",
+    "description":"The description of the application, displayed in the web store."
+  }
+}

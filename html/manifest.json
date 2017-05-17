@@ -1,8 +1,10 @@
 {
 	"name": "Kick Bot",
+  "short_name": "Kick Bot",
+	"version": "1.1.1",
+	"default_locale": "en",
 	"description": "Kick Bot will really kick your bot! Maneuver through spikes and laser beams. One wrong move and you’re a heap of metal.",
 	"launch_path": "/index.html",
-	"version": "1.1",
 	"app": {
 		"background": {
 			"scripts": ["background.js"]
@@ -16,5 +18,5 @@
 		"name": "Two Scoop Games",
 		"url": "http://twoscoopgames.com"
 	},
-	"default_locale": "en"
+	"offline_enabled": true
 }
