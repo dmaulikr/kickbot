@@ -4,6 +4,7 @@ var manifest = {
 	"images": {
 		"bg": "images/bg.png",
 		"logo": "images/kickbot-logo.png",
+    "ad2017": "images/kickbot-ad.png",
 	},
 	"sounds": {
 		"jump1": "audio/jump1.mp3",
@@ -194,7 +195,7 @@ var game = new Splat.Game(canvas, manifest);
 
 game.scenes.add("title", new Splat.Scene(canvas, function() {
 	this.timers.running = new Splat.Timer(null, 2000, function() {
-		game.scenes.switchTo("main");
+		game.scenes.switchTo("ad");
 	});
 	this.timers.running.start();
 }, function(elapsedMillis) {
@@ -211,6 +212,31 @@ game.scenes.add("title", new Splat.Scene(canvas, function() {
 
 	anim.draw(context, (canvas.width / 2) - (anim.width / 2), (canvas.height / 2) - (anim.height / 2));
 }));
+
+
+
+/*
+  Advertising here
+*/
+
+game.scenes.add("ad", new Splat.Scene(canvas, function() {
+
+  var secontsToShowScreen = 6000;
+
+	this.timers.running = new Splat.Timer(null, secontsToShowScreen, function() {
+		game.scenes.switchTo("main");
+	});
+	this.timers.running.start();
+}, function(elapsedMillis) {
+
+}, function(context) {
+  var ad2017Image = game.images.get("ad2017");
+  context.drawImage(ad2017Image, 0,0, ad2017Image.width, ad2017Image.height);
+}));
+
+
+
+
 
 function getBest() {
 	var b = parseInt(Splat.saveData.get("bestScore"));
@@ -439,6 +465,18 @@ function drawFlash(context, scene) {
 		context.fillRect(scene.camera.x, scene.camera.y, canvas.width, canvas.height);
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 game.scenes.add("main", new Splat.Scene(canvas, function() {
 	walls = [];
